@@ -17,13 +17,17 @@ Whether you're looking to automate tasks, generate insightful data, or simply ex
 
 ![PSAOAI](https://raw.githubusercontent.com/voytas75/AzureOpenAI-PowerShell/master/images/PSAOAI.png "PowerShell Azure OpenAI (PSAOAI) Module")
 
-## PSAOAI module features
+## Features
 
-- (Chat) Completion
-- Embedding
-- Generate Image (DALL-E 3)
-- Secure API KEY
-- Log responses
+The PSAOAI (PowerShell Azure OpenAI) module offers a comprehensive set of features designed to interact seamlessly with Azure OpenAI Services. Below is an improved and detailed list of the module's features:
+
+- **Chat Completion**: Generate conversational responses using the Azure OpenAI API, enabling interactive and dynamic chat experiences.
+- **Text Embedding**: Create high-dimensional vector representations of text for various NLP tasks such as similarity analysis and clustering.
+- **Image Generation (DALL-E 3)**: Generate high-quality images from textual descriptions using the DALL-E 3 model, allowing for creative and illustrative outputs.
+- **Secure API Key Management**: Safeguard your API keys with secure storage and retrieval mechanisms, ensuring the protection of sensitive information.
+- **Response Logging**: Automatically log API responses for auditing, debugging, and analysis purposes, providing a comprehensive record of interactions.
+- **Customizable Parameters**: Fine-tune API requests with parameters such as temperature, top-p, frequency penalty, and presence penalty to control the behavior and creativity of the model outputs.
+- **Streamlined Commands**: Utilize user-friendly PowerShell cmdlets to perform complex tasks with simple commands, enhancing productivity and ease of use.
 
 ## Installation
 
