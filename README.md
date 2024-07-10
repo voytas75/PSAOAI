@@ -30,7 +30,7 @@ The PSAOAI (PowerShell Azure OpenAI) module offers a comprehensive set of featur
 
 ## Installation
 
-The module is available on [PowerShell Gallery](https://www.powershellgallery.com/packages/PowerShellAZUREOpenAI).
+The module is available on [PowerShell Gallery](https://www.powershellgallery.com/packages/PSAOAI).
 
 ```powershell
 Install-Module -Name PSAOAI
@@ -99,9 +99,9 @@ We welcome contributions from the community! Feel free to submit pull requests, 
 
 ### License
 
-The PSAOAI is released under the [MIT License](https://github.com/voytas75/AzureOpenAI-PowerShell/blob/master/PSAOAI/LICENSE).
+The PSAOAI is released under the [MIT License](https://github.com/voytas75/PSAOAI/blob/master/LICENSE).
 
 **Contact:**
-If you have any questions or need assistance, please feel free to reach out to us via [GitHub Issues](https://github.com/voytas75/AzureOpenAI-PowerShell/issues).
+If you have any questions or need assistance, please feel free to reach out to us via [GitHub Issues](https://github.com/voytas75/PSAOAI/issues).
 
 Join us on the journey to make PowerShell scripting a truly awesome experience!
