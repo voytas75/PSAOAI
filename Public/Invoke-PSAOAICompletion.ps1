@@ -194,7 +194,7 @@ function Invoke-PSAOAICompletion {
             return $content
         }
     }
-
+    #region Main
     $logfileDirectory = Join-Path -Path ([Environment]::GetFolderPath("MyDocuments")) -ChildPath $script:modulename
     if ($LogFolder) {
         $logfileDirectory = $LogFolder
@@ -422,6 +422,7 @@ function Invoke-PSAOAICompletion {
     catch {
         Format-Error -ErrorVar $_
     }
+    #endregion Main
 }
 
 <#

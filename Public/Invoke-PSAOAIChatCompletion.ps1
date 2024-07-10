@@ -280,10 +280,24 @@ function Invoke-PSAOAIChatCompletion {
         return $variableValue
     }
 
-    $APIVersion = Get-PSAOAIEnvironmentVariableValue -VariableName "API_AZURE_OPENAI_APIVERSION" -PromptMessage "Please enter the API Version"
-    $Endpoint = Get-PSAOAIEnvironmentVariableValue -VariableName "API_AZURE_OPENAI_ENDPOINT" -PromptMessage "Please enter the Endpoint"
-    $Deployment = Get-PSAOAIEnvironmentVariableValue -VariableName "API_AZURE_OPENAI_CC_DEPLOYMENT" -PromptMessage "Please enter the Deployment"
-    $ApiKey = Get-PSAOAIEnvironmentVariableValue -VariableName "API_AZURE_OPENAI_KEY" -PromptMessage "Please enter the API Key" -Secure
+    #region Main
+    while (-not $APIVersion) {
+        $APIVersion = Set-EnvironmentVariable -VariableName $script:API_AZURE_OPENAI_APIVERSION -PromptMessage "Please enter the AZURE OpenAI API Version"
+    }
+
+    while (-not $Endpoint) {
+        # Get the endpoint from the environment variable
+        $Endpoint = Set-EnvironmentVariable -VariableName $script:API_AZURE_OPENAI_ENDPOINT -PromptMessage "Please enter the AZURE OpenAI Endpoint"
+    }
+
+    while (-not $Deployment) {
+        # Get the deployment from the environment variable
+        $Deployment = Set-EnvironmentVariable -VariableName $script:API_AZURE_OPENAI_CC_DEPLOYMENT -PromptMessage "Please enter the AZURE OpenAI Deployment"
+    }
+
+    while ([string]::IsNullOrEmpty($ApiKey)) {
+        $ApiKey = Set-EnvironmentVariable -VariableName $script:API_AZURE_OPENAI_KEY -PromptMessage "Please enter the AZURE OpenAI API Key" -Secure
+    }
   
     # Define a hashtable to map modes to their respective settings
     $modeSettings = @{
@@ -581,4 +595,5 @@ function Invoke-PSAOAIChatCompletion {
         Write-Error $_
         return
     }
+    #endregion Main
 }
