@@ -81,7 +81,7 @@ function Invoke-PSAOAIChatCompletion {
     .LINK
     https://learn.microsoft.com/en-us/azure/ai-services/openai/
     #>
-    [CmdletBinding(DefaultParameterSetName = 'SystemPrompt_Mode')]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
     param(
         [Parameter(Position = 0, ParameterSetName = 'SystemPrompt_Mode', Mandatory = $true)]
         [Parameter(Position = 0, ParameterSetName = 'SystemPrompt_TempTop', Mandatory = $true)]
@@ -135,7 +135,6 @@ function Invoke-PSAOAIChatCompletion {
         [int] $TimeOut = 240,
         [Parameter(Mandatory = $false)]
         [int] $MaxTokens = 4096
-
     )
 
     # Function to assemble system and user messages
