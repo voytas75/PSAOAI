@@ -134,7 +134,10 @@ function Invoke-PSAOAIChatCompletion {
         [Parameter(Mandatory = $false)]
         [int] $TimeOut = 240,
         [Parameter(Mandatory = $false)]
-        [int] $MaxTokens = 4096
+        [int] $MaxTokens = 4096,
+        
+        [Parameter(Mandatory = $false)]
+        [switch]$JSONMode
     )
 
     # Function to assemble system and user messages
