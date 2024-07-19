@@ -74,9 +74,21 @@ function Get-PSAOAIChatBody {
         [string]$user, # The user parameter for the API request
 
         [Parameter(Mandatory = $false)]
-        [int]$MaxTokens # max_tokens        
+        [int]$MaxTokens, # max_tokens        
+
+        [Parameter(Mandatory = $false)]
+        [bool]$JSONMode = $false # The JSONMode parameter for the API request
     )
 
+
+    if ($JSONMode) {
+        $ResponseType = "json_object"
+    }
+    else {
+        $ResponseType = "text"
+    }
+    #$ResponseType = "text"
+    
     # Construct and return the body for the API request
     return @{
         'messages'          = $messages
@@ -89,5 +101,8 @@ function Get-PSAOAIChatBody {
         'stream'            = $stream
         'user'              = $user
         'max_tokens'        = $MaxTokens
+        'response_format'   = @{ 
+            'type' = $ResponseType 
+        }
     }
 }

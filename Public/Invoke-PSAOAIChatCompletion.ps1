@@ -137,7 +137,7 @@ function Invoke-PSAOAIChatCompletion {
         [int] $MaxTokens = 4096,
         
         [Parameter(Mandatory = $false)]
-        [switch]$JSONMode
+        [switch]$JSONMode = $false
     )
 
     # Function to assemble system and user messages
@@ -146,9 +146,18 @@ function Invoke-PSAOAIChatCompletion {
         param(
             [Parameter(Mandatory = $true)]
             [string]$SystemMessage,
+
             [Parameter(Mandatory = $true)]
-            [string]$UserMessage
+            [string]$UserMessage,
+
+            [Parameter(Mandatory = $false)]
+            [bool]$JSONMode = $false
         )
+
+        if ($JSONMode) {
+            $SystemMessage += " Only accept JSON responses."
+            Write-Verbose "JSONMode"
+        }
     
         Write-Verbose "System message in Get-PSAOAIMessages: $SystemMessage"
         Write-Verbose "User message in Get-PSAOAIMessages: $UserMessage"
@@ -382,6 +391,7 @@ function Invoke-PSAOAIChatCompletion {
         Write-Host "simpleresponse: $simpleresponse"
         Write-Host "usermessagelogfile: $usermessagelogfile"
         Write-Host "LogFolder: $logfileDirectory"
+        Write-Host "JSONMOde: $JSONMOde"
     }
 
     try {
@@ -466,7 +476,7 @@ function Invoke-PSAOAIChatCompletion {
         }
         
         # Get the messages from the system and user
-        $messages = Get-PSAOAIMessages -systemmessage $system_message -UserMessage $userMessage
+        $messages = Get-PSAOAIMessages -systemmessage $system_message -UserMessage $userMessage -JSONMode $JSONMode
         # Write the messages to the verbose output
         Write-Verbose "Messages: $($messages | out-string)"
 
@@ -483,7 +493,7 @@ function Invoke-PSAOAIChatCompletion {
 
         do {
             # Get the body of the message
-            $body = Get-PSAOAIChatBody -messages $messages -temperature $parameters['Temperature'] -top_p $parameters['TopP'] -frequency_penalty $FrequencyPenalty -presence_penalty $PresencePenalty -user $User -n $N -stop $Stop -stream $Stream -MaxTokens $MaxTokens
+            $body = Get-PSAOAIChatBody -messages $messages -temperature $parameters['Temperature'] -top_p $parameters['TopP'] -frequency_penalty $FrequencyPenalty -presence_penalty $PresencePenalty -user $User -n $N -stop $Stop -stream $Stream -MaxTokens $MaxTokens -JSONMode $JSONMode
 
             # Convert the body to JSON
             $bodyJSON = ($body | ConvertTo-Json)

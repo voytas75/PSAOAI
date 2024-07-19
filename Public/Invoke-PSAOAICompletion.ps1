@@ -134,8 +134,10 @@ function Invoke-PSAOAICompletion {
         [Parameter(Position = 4, Mandatory = $false)]
         [string]$Deployment = (Set-EnvironmentVariable -VariableName $script:API_AZURE_OPENAI_C_DEPLOYMENT -PromptMessage "Please enter the deployment"),
         [Parameter(Mandatory = $false)]
-        [int] $TimeOut = 240
+        [int] $TimeOut = 240,
 
+        [Parameter(Mandatory = $false)]
+        [switch]$JSONMode = $false
     )
     
     # Define system and user messages
@@ -349,6 +351,7 @@ function Invoke-PSAOAICompletion {
         Write-Verbose "Completion Config: $completion_config"
         Write-Verbose "Model: $Deployment"
         Write-Verbose "LogFolder: $logfileDirectory"
+        Write-Verbose "JSONMode: $JSONMode"
 
         
         $bodyJSON = Get-PSAOAICompletionBody -prompt $prompt `

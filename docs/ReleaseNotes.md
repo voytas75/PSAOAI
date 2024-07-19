@@ -4,9 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [unreleased]
+## [0.4.1] - 2024.07.19
 
 ### Added
+
+- Chat: json mode ([#1](https://github.com/voytas75/PSAOAI/issues/1)).
 
 ### Fix
 
