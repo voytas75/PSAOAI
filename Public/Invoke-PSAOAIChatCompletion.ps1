@@ -568,7 +568,7 @@ function Invoke-PSAOAIChatCompletion {
                     return $responseText
                 }
                 else {
-                    return $responseText
+                    return
                 }           
             }
             else {
