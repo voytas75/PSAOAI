@@ -52,10 +52,22 @@ Get-Command -Module PSAOAI
 
 ### Chat Completion
 
+**Example 1**:
+
 ```powershell
 "AZURE Logic App 'IF' element" | Invoke-PSAOAIChatCompletion -APIVersion "2024-05-01-preview" -Endpoint 
 "https://example.openai.azure.com" -Deployment "example_model_gpt35_!" -User "BobbyK" -Temperature 0.2 -TopP 0.7 
 -FrequencyPenalty 0 -PresencePenalty 0 -simpleresponse -SystemPrompt "Explain to me" -Stream $false -JSONMode
+```
+
+**Example 2**:
+
+This example demonstrates how to use the `Invoke-PSAOAIChatCompletion` cmdlet to generate a response from the Azure OpenAI API and save it to a variable when streaming is enabled. This prevents duplicating the response.
+
+```powershell
+$resule = "AZURE Logic App 'IF' element" | Invoke-PSAOAIChatCompletion -APIVersion "2024-05-01-preview" -Endpoint 
+"https://example.openai.azure.com" -Deployment "example_model_gpt35_!" -User "BobbyK" -Temperature 0.2 -TopP 0.7 
+-FrequencyPenalty 0 -PresencePenalty 0 -simpleresponse -SystemPrompt "Explain to me" -Stream $true
 ```
 
 ### Completion

@@ -568,7 +568,9 @@ function Invoke-PSAOAIChatCompletion {
                     return $responseText
                 }
                 else {
-                    return
+                    # The script returns a value when $Stream is true. 
+                    # This means that in this situation, always save the value to a variable to avoid duplicating the response.
+                    return $responseText
                 }           
             }
             else {

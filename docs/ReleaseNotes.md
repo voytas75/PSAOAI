@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
+- Chat: Restore value when stream is $true.
+
 ## [0.4.2] - 2024.07.21
 
 ### Added
