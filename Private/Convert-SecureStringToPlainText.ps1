@@ -14,10 +14,10 @@
     Write-Host $PlainTextPassword
 
 .NOTES
-Author: Wojciech Napierala
-Date:   2024-04
-
+    Author: Wojciech Napierala
+    Date:   2024-04
 #>
+
 function Convert-SecureStringToPlainText {
     param (
         [Parameter(Mandatory = $true)]
