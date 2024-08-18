@@ -233,6 +233,7 @@ function Invoke-PSAOAIDalle3 {
                 # Display the paths of the saved files
                 Write-Host $ImageFullName -ForegroundColor Blue
                 Write-Host $promptFullName -ForegroundColor Blue
+                return $ImageFullName
             }
             else {
 
