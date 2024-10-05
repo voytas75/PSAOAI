@@ -83,14 +83,14 @@ function Invoke-PSAOAIChatCompletion {
     #>
     [CmdletBinding(DefaultParameterSetName = 'Default')]
     param(
-        [Parameter(Position = 0, ParameterSetName = 'SystemPrompt_Mode', Mandatory = $true)]
-        [Parameter(Position = 0, ParameterSetName = 'SystemPrompt_TempTop', Mandatory = $true)]
+        [Parameter(Position = 1, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
+        [string]$usermessage,
+        [Parameter(Position = 0, ParameterSetName = 'SystemPrompt_Mode', Mandatory = $false)]
+        [Parameter(Position = 0, ParameterSetName = 'SystemPrompt_TempTop', Mandatory = $false)]
         [string]$SystemPrompt,
         [Parameter(ParameterSetName = 'SystemPromptFileName_Mode', Mandatory = $true)]
         [Parameter(ParameterSetName = 'SystemPromptFileName_TempTop', Mandatory = $true)]
         [string]$SystemPromptFileName,
-        [Parameter(Position = 1, Mandatory = $true, ValueFromPipeline = $true)]
-        [string]$usermessage,
         [Parameter(Position = 3, Mandatory = $false)]
         [switch]$OneTimeUserPrompt,
         [Parameter(Position = 2, ParameterSetName = 'SystemPrompt_Mode', Mandatory = $false)]
@@ -309,6 +309,12 @@ function Invoke-PSAOAIChatCompletion {
         $ApiKey = Set-EnvironmentVariable -VariableName $script:API_AZURE_OPENAI_KEY -PromptMessage "Please enter the AZURE OpenAI API Key" -Secure
     }
   
+
+    # Ensure that usermessage is provided, prompt the user if it is empty
+    if ([string]::IsNullOrEmpty($usermessage)) {
+        $usermessage = Read-Host -Prompt "Please enter the user message"
+    }
+    
     # Define a hashtable to map modes to their respective settings
     $modeSettings = @{
         "Precise"      = @{ UltraPrecise = $false; Precise = $true; Focused = $false; Balanced = $false; Informative = $false; Creative = $false; Surreal = $false }
