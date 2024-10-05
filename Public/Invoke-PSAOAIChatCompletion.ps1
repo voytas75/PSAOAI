@@ -135,7 +135,6 @@ function Invoke-PSAOAIChatCompletion {
         [int] $TimeOut = 240,
         [Parameter(Mandatory = $false)]
         [int] $MaxTokens = 4096,
-        
         [Parameter(Mandatory = $false)]
         [switch]$JSONMode = $false
     )
@@ -356,10 +355,8 @@ function Invoke-PSAOAIChatCompletion {
     }
     else {
         $parameters = @{
-            #'Temperature' = $Temperature
-            #'TopP'        = $TopP
-            'Temperature' = 0.5
-            'TopP'        = 0.5
+            'Temperature' = $Temperature
+            'TopP'        = $TopP
         }
     }
 
@@ -452,7 +449,14 @@ function Invoke-PSAOAIChatCompletion {
             $system_message = get-content -path $SystemPromptFileName -Encoding UTF8 -Raw 
         }
         else {
-            $system_message = $SystemPrompt
+            if ($SystemPrompt) {
+                $system_message = $SystemPrompt
+            }
+            else {
+                #$system_message = Read-Host -Prompt "Enter the system prompt message"
+                $system_message = "You are a helpful, knowledgeable, and polite assistant. Your goal is to assist the user by providing accurate, concise, and informative responses to their queries. Remain neutral and avoid giving opinions unless explicitly asked. Provide explanations where necessary, but keep the responses simple and clear."
+
+            }
         }
         
         # cleaning system prompt

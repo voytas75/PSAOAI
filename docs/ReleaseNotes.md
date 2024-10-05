@@ -8,11 +8,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Added
 
-- Added return image path for Dalle3
+- Added return image path for Dalle3.
+- Chat: Default system prompt.
 
 ### Fix
 
 ### Changed
+
+- Chat: Adjusted default values for Temperature and TopP.
+- Chat: Updated Verbose display.
 
 ## [0.4.3] - 2024.07.21
 
