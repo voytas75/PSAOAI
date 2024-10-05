@@ -375,7 +375,7 @@ function Invoke-PSAOAIChatCompletion {
         Write-Host "Deployment: $Deployment"
         Write-Host "Mode: $(if($Mode){$Mode}else{"does not exist"})"
         Write-Host "SystemPromptFileName: $(if($SystemPromptFileName){"exists"}else{"does not exist"})"
-        Write-Host "SystemPrompt: $(if($SystemPrompt){"exists"}else{"does not exist"})"
+        Write-Host "SystemPrompt: $(if($SystemPrompt){"exists"}else{"default one"})"
         Write-Host "usermessage: $(if($usermessage){"exists"}else{"does not exist"})"
         Write-Host "OneTimeUserPrompt: $(if($OneTimeUserPrompt){"true"}else{"false"})"
         Write-Host "Temperature: $Temperature"
