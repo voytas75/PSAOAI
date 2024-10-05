@@ -100,11 +100,11 @@ function Invoke-PSAOAIChatCompletion {
         [Parameter(ParameterSetName = 'SystemPrompt_TempTop', Mandatory = $false)]
         [Parameter(ParameterSetName = 'SystemPromptFileName_TempTop', Mandatory = $false)]
         [Parameter(ParameterSetName = 'temptop')]
-        [double]$Temperature = 1,
+        [double]$Temperature = 0.5,
         [Parameter(ParameterSetName = 'SystemPrompt_TempTop', Mandatory = $false)]
         [Parameter(ParameterSetName = 'SystemPromptFileName_TempTop', Mandatory = $false)]
         [Parameter(ParameterSetName = 'temptop')]
-        [double]$TopP = 1,
+        [double]$TopP = 0.5,
         [Parameter(Mandatory = $false)]
         [string]$logfile,
         [Parameter(Mandatory = $false)]
@@ -356,8 +356,10 @@ function Invoke-PSAOAIChatCompletion {
     }
     else {
         $parameters = @{
-            'Temperature' = $Temperature
-            'TopP'        = $TopP
+            #'Temperature' = $Temperature
+            #'TopP'        = $TopP
+            'Temperature' = 0.5
+            'TopP'        = 0.5
         }
     }
 
@@ -374,7 +376,7 @@ function Invoke-PSAOAIChatCompletion {
         Write-Host "APIVersion: $APIVersion"
         Write-Host "Endpoint: $Endpoint"
         Write-Host "Deployment: $Deployment"
-        Write-Host "Mode: $Mode"
+        Write-Host "Mode: $(if($Mode){$Mode}else{"does not exist"})"
         Write-Host "SystemPromptFileName: $(if($SystemPromptFileName){"exists"}else{"does not exist"})"
         Write-Host "SystemPrompt: $(if($SystemPrompt){"exists"}else{"does not exist"})"
         Write-Host "usermessage: $(if($usermessage){"exists"}else{"does not exist"})"
@@ -389,7 +391,7 @@ function Invoke-PSAOAIChatCompletion {
         Write-Host "Stream: $(if($stream){"true"}else{"false"})"
         Write-Host "logfile: $(if($logfile){$logfile}else{"not set"})"
         Write-Host "simpleresponse: $simpleresponse"
-        Write-Host "usermessagelogfile: $usermessagelogfile"
+        Write-Host "usermessagelogfile: $(if($usermessagelogfile){$usermessagelogfile}else{"does not exist"})"
         Write-Host "LogFolder: $logfileDirectory"
         Write-Host "JSONMOde: $JSONMOde"
     }
