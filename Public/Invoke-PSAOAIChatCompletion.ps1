@@ -127,7 +127,9 @@ function Invoke-PSAOAIChatCompletion {
         [Parameter(Mandatory = $false)]
         [int] $MaxTokens = 4096,
         [Parameter(Mandatory = $false)]
-        [switch]$JSONMode = $false
+        [switch]$JSONMode = $false,
+        [Parameter(Mandatory = $false)]
+        [switch]$o1 = $false 
     )
 
     # Function to assemble system and user messages
@@ -164,6 +166,22 @@ function Invoke-PSAOAIChatCompletion {
         )
     }
     
+    # Function to assemble system and user messages
+    function Get-PSAOAIMessageso1 {
+        # Function to assemble system and user messages
+        param(
+            [Parameter(Mandatory = $true)]
+            [string]$UserMessage
+        )
+
+        Write-Verbose "User message in Get-PSAOAIMessages: $UserMessage"
+
+        return @{
+            "role"    = "user"
+            "content" = $UserMessage
+        }
+    }
+
     # Function to output the response message
     function Write-PSAOAIMessage {
         <#
@@ -301,9 +319,16 @@ function Invoke-PSAOAIChatCompletion {
     }
   
 
-    # Ensure that usermessage is provided, prompt the user if it is empty
-    if ([string]::IsNullOrEmpty($usermessage)) {
-        $usermessage = Read-Host -Prompt "Please enter the user message"
+    # Continuously prompt the user for a message until a non-empty message is provided
+    while ([string]::IsNullOrEmpty($usermessage)) {
+        if ($o1) {
+            # Ask for specific input for the o1 scenario
+            $usermessage = Read-Host -Prompt "Please enter the user message for the o1 scenario"
+        }
+        else {
+            # Regular input prompt
+            $usermessage = Read-Host -Prompt "Please enter the user message"
+        }
     }
     
     # Define a hashtable to map modes to their respective settings
@@ -355,6 +380,10 @@ function Invoke-PSAOAIChatCompletion {
             'Temperature' = $Temperature
             'TopP'        = $TopP
         }
+    }
+
+    if ($o1) {
+        $stream = $false # stream is set to false for 'o1' mode
     }
 
     if ($OneTimeUserPrompt) {
@@ -442,26 +471,28 @@ function Invoke-PSAOAIChatCompletion {
         $headers = Get-Headers -ApiKeyVariable $script:API_AZURE_OPENAI_KEY -Secure
 
         # system prompt
-        if ($SystemPromptFileName) {
-            $system_message = get-content -path $SystemPromptFileName -Encoding UTF8 -Raw 
-        }
-        else {
-            if ($SystemPrompt) {
-                $system_message = $SystemPrompt
+        
+        if (-not $o1) {
+            if ($SystemPromptFileName) {
+                $system_message = get-content -path $SystemPromptFileName -Encoding UTF8 -Raw 
             }
             else {
-                #$system_message = Read-Host -Prompt "Enter the system prompt message"
-                $system_message = "You are a helpful, knowledgeable, and polite assistant. Your goal is to assist the user by providing accurate, concise, and informative responses to their queries. Remain neutral and avoid giving opinions unless explicitly asked. Provide explanations where necessary, but keep the responses simple and clear."
+                if ($SystemPrompt) {
+                    $system_message = $SystemPrompt
+                }
+                else {
+                    #$system_message = Read-Host -Prompt "Enter the system prompt message"
+                    $system_message = "You are a helpful, knowledgeable, and polite assistant. Your goal is to assist the user by providing accurate, concise, and informative responses to their queries. Remain neutral and avoid giving opinions unless explicitly asked. Provide explanations where necessary, but keep the responses simple and clear."
+                }
+            }
+            # cleaning system prompt
+            $system_message = [System.Text.RegularExpressions.Regex]::Replace($system_message, "[^\x00-\x7F]", "")        
 
+            if ($VerbosePreference -eq "Continue") {
+                Write-verbose (Write-PSAOAIMessage -content $system_message -stream "system" | Out-String)
             }
         }
         
-        # cleaning system prompt
-        $system_message = [System.Text.RegularExpressions.Regex]::Replace($system_message, "[^\x00-\x7F]", "")        
-
-        if ($VerbosePreference -eq "Continue") {
-            Write-verbose (Write-PSAOAIMessage -content $system_message -stream "system" | Out-String)
-        }
 
         # user prompt message
         if ($OneTimeUserPrompt) {
@@ -478,8 +509,15 @@ function Invoke-PSAOAIChatCompletion {
             Write-Verbose $userMessage
         }
         
+
         # Get the messages from the system and user
-        $messages = Get-PSAOAIMessages -systemmessage $system_message -UserMessage $userMessage -JSONMode $JSONMode
+        if ($o1) {
+            $messages = Get-PSAOAIMessageso1 -UserMessage $userMessage
+        }
+        else {
+            $messages = Get-PSAOAIMessages -systemmessage $system_message -UserMessage $userMessage -JSONMode $JSONMode
+        }
+
         # Write the messages to the verbose output
         Write-Verbose "Messages: $($messages | out-string)"
 
@@ -489,14 +527,21 @@ function Invoke-PSAOAIChatCompletion {
         # Write the URL to the verbose output
         Write-Verbose "urlChat: $urlChat"
 
-        # Write the system prompt to the log file
-        Write-LogMessage -Message "System promp:`n======`n$system_message`n======`n" -LogFile $logfile
+        if (-not $o1) {
+            # Write the system prompt to the log file
+            Write-LogMessage -Message "System promp:`n======`n$system_message`n======`n" -LogFile $logfile
+        }
         # Write the user message to the log file
         Write-LogMessage -Message "User message:`n======`n$userMessage`n======`n" -LogFile $logfile
 
         do {
             # Get the body of the message
-            $body = Get-PSAOAIChatBody -messages $messages -temperature $parameters['Temperature'] -top_p $parameters['TopP'] -frequency_penalty $FrequencyPenalty -presence_penalty $PresencePenalty -user $User -n $N -stop $Stop -stream $Stream -MaxTokens $MaxTokens -JSONMode $JSONMode
+            if ($o1) {
+                $body = Get-PSAOAIChatBodyo1 -messages $messages -max_completion_tokens $MaxTokens
+            }
+            else {
+                $body = Get-PSAOAIChatBody -messages $messages -temperature $parameters['Temperature'] -top_p $parameters['TopP'] -frequency_penalty $FrequencyPenalty -presence_penalty $PresencePenalty -user $User -n $N -stop $Stop -stream $Stream -MaxTokens $MaxTokens -JSONMode $JSONMode
+            }
 
             # Convert the body to JSON
             $bodyJSON = ($body | ConvertTo-Json)
@@ -507,11 +552,24 @@ function Invoke-PSAOAIChatCompletion {
                 if ($logfile) {
                     Write-Host "{Logfile:'${logfile}'} " -ForegroundColor Magenta
                 }
+                if ($o1) {
+                    $o1DeailtsBanner = "{Mode: 'o1', max_completion_tokens: '$MaxTokens'} "
+                }
                 if ($SystemPromptFileName) {
-                    Write-Host "{SysPFile:'$(Split-Path -Path $SystemPromptFileName -Leaf)', temp:'$($parameters['Temperature'])', top_p:'$($parameters['TopP'])', max_tokens:'${Maxtokens}', fp:'${FrequencyPenalty}', pp:'${PresencePenalty}', user:'${User}', n:'${N}', stop:'${Stop}', stream:'${Stream}'} " -NoNewline -ForegroundColor Magenta
+                    if ($o1) {
+                        Write-Host $o1DeailtsBanner -NoNewline -ForegroundColor Magenta
+                    }
+                    else {
+                        Write-Host "{SysPFile:'$(Split-Path -Path $SystemPromptFileName -Leaf)', temp:'$($parameters['Temperature'])', top_p:'$($parameters['TopP'])', max_tokens:'${Maxtokens}', fp:'${FrequencyPenalty}', pp:'${PresencePenalty}', user:'${User}', n:'${N}', stop:'${Stop}', stream:'${Stream}'} " -NoNewline -ForegroundColor Magenta
+                    }
                 }
                 else {
-                    Write-Host "{SysPrompt, temp:'$($parameters['Temperature'])', top_p:'$($parameters['TopP'])', max_tokens:'${Maxtokens}', fp:'${FrequencyPenalty}', pp:'${PresencePenalty}', user:'${User}', n:'${N}', stop:'${Stop}', stream:'${Stream}'} " -NoNewline -ForegroundColor Magenta
+                    if ($o1) {
+                        Write-Host $o1DeailtsBanner -NoNewline -ForegroundColor Magenta
+                    }
+                    else {
+                        Write-Host "{SysPrompt, temp:'$($parameters['Temperature'])', top_p:'$($parameters['TopP'])', max_tokens:'${Maxtokens}', fp:'${FrequencyPenalty}', pp:'${PresencePenalty}', user:'${User}', n:'${N}', stop:'${Stop}', stream:'${Stream}'} " -NoNewline -ForegroundColor Magenta
+                    }
                 }
             }
            
@@ -527,20 +585,22 @@ function Invoke-PSAOAIChatCompletion {
             }
             else {
                 $response = Invoke-PSAOAIApiRequest -url $urlChat -headers $headers -bodyJSON $bodyJSON -timeout $TimeOut
-                #write-Host ($response | ConvertTo-Json -Depth 100)
-                #if ([string]::IsNullOrEmpty($($response.choices[0].text))) {
                 if ([string]::IsNullOrEmpty($($response.choices[0].message.content))) {
                     Write-Warning "Response is empty"
-                    Write-LogMessage -Message "Response is empty"  "WARNING" -LogFile $logfile
+                    Write-LogMessage -Message "Response is empty" "WARNING" -LogFile $logfile
                     return
                 }
                 # Write the received job to verbose output
                 Write-Verbose ("Received job output:`n$($response | ConvertTo-Json)" | Out-String)
                 # Get the assistant response
+                
                 $assistant_response = $response.choices[0].message.content
             }
-            # Add the assistant response to the messages
-            $messages += @{"role" = "assistant"; "content" = $assistant_response }
+
+            if (-not $o1) {
+                # Add the assistant response to the messages
+                $messages += @{"role" = "assistant"; "content" = $assistant_response }
+            }
 
             # If there is a one-time user prompt, process it
             if ($OneTimeUserPrompt) {

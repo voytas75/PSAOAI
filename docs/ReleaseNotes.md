@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Added
 
+- Chat: support o1 models.
+
 ### Fix
 
 - [#5](https://github.com/voytas75/PSAOAI/issues/5).
