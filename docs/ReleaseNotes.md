@@ -4,11 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.5.2] - unpublished
+## [0.6.0] - unpublished
 
 ### Added
 
-- Chat: support o1 models.
+- Chat: support o1 models ([#6](https://github.com/voytas75/PSAOAI/issues/6)).
+- Chat: `o1` switch for o1 models.
 
 ### Fix
 

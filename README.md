@@ -4,7 +4,7 @@
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/A0A6KYBUS)
 
-[![status](https://img.shields.io/badge/PROD-v0.5.1-green)](https://github.com/voytas75/PSAOAI/blob/master/docs/ReleaseNotes.md) &nbsp; [![status](https://img.shields.io/badge/DEV-v0.5.2-red)](https://github.com/voytas75/PSAOAI/blob/master/docs/ReleaseNotes.md) &nbsp; ![PowerShell version](https://img.shields.io/badge/PowerShell-v5.1-blue) &nbsp; ![PowerShell version](https://img.shields.io/badge/PowerShell-v7-darkblue) &nbsp; [![PowerShell Gallery Version (including pre-releases)](https://img.shields.io/powershellgallery/v/PSAOAI)](https://www.powershellgallery.com/packages/PSAOAI) &nbsp; [![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/PSAOAI)](https://www.powershellgallery.com/packages/PSAOAI) &nbsp; [![Codacy Badge](https://app.codacy.com/project/badge/Grade/b299e2b2499942589ee6fe26c972fbb9)](https://app.codacy.com/gh/voytas75/PSAOAI/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![status](https://img.shields.io/badge/PROD-v0.6.0-green)](https://github.com/voytas75/PSAOAI/blob/master/docs/ReleaseNotes.md) &nbsp; [![status](https://img.shields.io/badge/DEV-v0.6.1-red)](https://github.com/voytas75/PSAOAI/blob/master/docs/ReleaseNotes.md) &nbsp; ![PowerShell version](https://img.shields.io/badge/PowerShell-v5.1-blue) &nbsp; ![PowerShell version](https://img.shields.io/badge/PowerShell-v7-darkblue) &nbsp; [![PowerShell Gallery Version (including pre-releases)](https://img.shields.io/powershellgallery/v/PSAOAI)](https://www.powershellgallery.com/packages/PSAOAI) &nbsp; [![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/PSAOAI)](https://www.powershellgallery.com/packages/PSAOAI) &nbsp; [![Codacy Badge](https://app.codacy.com/project/badge/Grade/b299e2b2499942589ee6fe26c972fbb9)](https://app.codacy.com/gh/voytas75/PSAOAI/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 ## Overview
 
@@ -20,7 +20,7 @@ Whether you're looking to automate tasks, generate insightful data, or simply ex
 
 The PSAOAI (PowerShell Azure OpenAI) module offers a comprehensive set of features designed to interact seamlessly with Azure OpenAI Services. Below is an improved and detailed list of the module's features:
 
-- **Chat Completion**: Generate conversational responses using the Azure OpenAI API, enabling interactive and dynamic chat experiences.
+- **Chat Completion**: Generate conversational responses using the Azure OpenAI API, enabling interactive and dynamic chat experiences, including support for `o1` models.
 - **Text Embedding**: Create high-dimensional vector representations of text for various NLP tasks such as similarity analysis and clustering.
 - **Image Generation (DALL-E 3)**: Generate high-quality images from textual descriptions using the DALL-E 3 model, allowing for creative and illustrative outputs.
 - **Secure API Key Management**: Safeguard your API keys with secure storage and retrieval mechanisms, ensuring the protection of sensitive information.
@@ -54,13 +54,21 @@ Get-Command -Module PSAOAI
 
 **Example 1**:
 
+This example demonstrates how to use module with the `-o1` switch enabled, which indicates that the `o1` model is used. This scenario is specific to use cases where special handling or context is required.
+
+```powershell
+"<describe reasoning problem>" | Invoke-PSAOAIChatCompletion -Deployment "model_o1" -o1
+```
+
+**Example 2**:
+
 ```powershell
 "AZURE Logic App 'IF' element" | Invoke-PSAOAIChatCompletion -APIVersion "2024-05-01-preview" -Endpoint 
 "https://example.openai.azure.com" -Deployment "example_model_gpt35_!" -User "BobbyK" -Temperature 0.2 -TopP 0.7 
 -FrequencyPenalty 0 -PresencePenalty 0 -simpleresponse -SystemPrompt "Explain to me" -Stream $false -JSONMode
 ```
 
-**Example 2**:
+**Example 3**:
 
 This example demonstrates how to use the `Invoke-PSAOAIChatCompletion` cmdlet to generate a response from the Azure OpenAI API and save it to a variable when streaming is enabled. This prevents duplicating the response.
 
