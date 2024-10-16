@@ -84,15 +84,15 @@ function Invoke-PSAOAICompletion {
     Date:   2023-06-27
     Repo: https://github.com/voytas75/AzureOpenAI-PowerShell
     #>    
-    [CmdletBinding(DefaultParameterSetName = 'Mode')]
+    [CmdletBinding()]
     param(
         [Parameter(Position = 0, ValueFromPipeline)]
         [string]$usermessage,
         [Parameter(Position = 1, Mandatory = $false)]
         [int]$MaxTokens = "800",
-        [Parameter(ParameterSetName = 'SamplingParameters', Mandatory = $false, HelpMessage = "What sampling temperature to use, between 0 and 2. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer. We generally recommend altering this or top_p but not both.")]
+        [Parameter(Mandatory = $false, HelpMessage = "What sampling temperature to use, between 0 and 2. Higher values means the model will take more risks. Try 0.9 for more creative applications, and 0 (argmax sampling) for ones with a well-defined answer. We generally recommend altering this or top_p but not both.")]
         [double]$Temperature = 1,
-        [Parameter(ParameterSetName = 'SamplingParameters', Mandatory = $false, HelpMessage = 'An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. We generally recommend altering this or temperature but not both.')]
+        [Parameter(Mandatory = $false, HelpMessage = 'An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered. We generally recommend altering this or temperature but not both.')]
         [double]$TopP = 1,
         [Parameter(Mandatory = $false)]
         [double]$FrequencyPenalty = 0,
@@ -120,7 +120,7 @@ function Invoke-PSAOAICompletion {
         [string]$User = "",
         [Parameter(Mandatory = $false)]
         [string]$model,
-        [Parameter(Position = 2, ParameterSetName = 'Mode', Mandatory = $false)]
+        [Parameter(Position = 2, Mandatory = $false)]
         [ValidateSet("UltraPrecise", "Precise", "Focused", "Balanced", "Informative", "Creative", "Surreal")]
         [string]$Mode,
         [Parameter(Position = 5, Mandatory = $false)]
@@ -140,14 +140,18 @@ function Invoke-PSAOAICompletion {
         [switch]$JSONMode = $false
     )
     
-    # Define system and user messages
-    function Get-Prompt {
+# Define system and user messages
+function Get-Prompt {
+    while ($true) {
+        $prompt = Read-Host "Please enter the user message to the Completion"
+        
+        if (-not [string]::IsNullOrWhiteSpace($prompt)) {
+            return $prompt
+        }
 
-        $prompt = Read-Host "Send a message (prompt)"
-
-        return $prompt
+        Write-Host "You did not provide any text. Please send a message to the Completion."
     }
-    
+}
     # Output response message
     function Show-ResponseMessage {
         <#

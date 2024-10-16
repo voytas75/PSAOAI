@@ -14,7 +14,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
-- remove `Parameter sets` from chat.
+- Chat: remove `Parameter sets`.
+- Completion: remove `Parameter sets`.
 
 ## [0.5.1] - 2024.10.05
 
