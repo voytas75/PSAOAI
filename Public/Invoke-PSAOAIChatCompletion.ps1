@@ -81,29 +81,20 @@ function Invoke-PSAOAIChatCompletion {
     .LINK
     https://learn.microsoft.com/en-us/azure/ai-services/openai/
     #>
-    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    [CmdletBinding()]
     param(
         [Parameter(Position = 1, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true)]
         [string]$usermessage,
-        [Parameter(Position = 0, ParameterSetName = 'SystemPrompt_Mode', Mandatory = $false)]
-        [Parameter(Position = 0, ParameterSetName = 'SystemPrompt_TempTop', Mandatory = $false)]
+        [Parameter(Position = 0, Mandatory = $false)]
         [string]$SystemPrompt,
-        [Parameter(ParameterSetName = 'SystemPromptFileName_Mode', Mandatory = $true)]
-        [Parameter(ParameterSetName = 'SystemPromptFileName_TempTop', Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]$SystemPromptFileName,
         [Parameter(Position = 3, Mandatory = $false)]
         [switch]$OneTimeUserPrompt,
-        [Parameter(Position = 2, ParameterSetName = 'SystemPrompt_Mode', Mandatory = $false)]
-        [Parameter(Position = 2, ParameterSetName = 'SystemPromptFileName_Mode', Mandatory = $false)]
+        [Parameter(Position = 2, Mandatory = $false)]
         [ValidateSet("UltraPrecise", "Precise", "Focused", "Balanced", "Informative", "Creative", "Surreal")]
         [string]$Mode,
-        [Parameter(ParameterSetName = 'SystemPrompt_TempTop', Mandatory = $false)]
-        [Parameter(ParameterSetName = 'SystemPromptFileName_TempTop', Mandatory = $false)]
-        [Parameter(ParameterSetName = 'temptop')]
         [double]$Temperature = 0.5,
-        [Parameter(ParameterSetName = 'SystemPrompt_TempTop', Mandatory = $false)]
-        [Parameter(ParameterSetName = 'SystemPromptFileName_TempTop', Mandatory = $false)]
-        [Parameter(ParameterSetName = 'temptop')]
         [double]$TopP = 0.5,
         [Parameter(Mandatory = $false)]
         [string]$logfile,

@@ -10,7 +10,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Fix
 
+- [#5](https://github.com/voytas75/PSAOAI/issues/5).
+
 ### Changed
+
+- remove `Parameter sets` from chat.
 
 ## [0.5.1] - 2024.10.05
 
