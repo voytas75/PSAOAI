@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Fix
 
+- chat: [#7](https://github.com/voytas75/PSAOAI/issues/7).
+
 ### Changed
 
 ## [0.6.0] - 2024.10.16

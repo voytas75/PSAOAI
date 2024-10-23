@@ -176,10 +176,12 @@ function Invoke-PSAOAIChatCompletion {
 
         Write-Verbose "User message in Get-PSAOAIMessages: $UserMessage"
 
-        return @{
-            "role"    = "user"
-            "content" = $UserMessage
-        }
+        return @(
+            @{
+                "role"    = "user"
+                "content" = $UserMessage
+            }
+        )
     }
 
     # Function to output the response message
@@ -512,7 +514,8 @@ function Invoke-PSAOAIChatCompletion {
 
         # Get the messages from the system and user
         if ($o1) {
-            $messages = Get-PSAOAIMessageso1 -UserMessage $userMessage
+            $messages = @()
+            $messages += Get-PSAOAIMessageso1 -UserMessage $userMessage
         }
         else {
             $messages = Get-PSAOAIMessages -systemmessage $system_message -UserMessage $userMessage -JSONMode $JSONMode
@@ -597,15 +600,18 @@ function Invoke-PSAOAIChatCompletion {
                 $assistant_response = $response.choices[0].message.content
             }
 
-            if (-not $o1) {
-                # Add the assistant response to the messages
+            #if (-not $o1) {
+                # Add the assistant response to the messages                
                 $messages += @{"role" = "assistant"; "content" = $assistant_response }
-            }
+            #}
+            #elseif ($o1) {
+            #    $messages += @{"role" = "assistant"; "content" = $assistant_response }
+            #}
 
             # If there is a one-time user prompt, process it
             if ($OneTimeUserPrompt) {
                 Write-Verbose "OneTimeUserPrompt output with return"
-                if (-not $simpleresponse -and (-not $Stream)) {
+                if (-not $simpleresponse -and (-not $Stream) -and (-not $o1)) {
                     Write-Verbose "Show-FinishReason"
                     Write-Information -MessageData (Show-FinishReason -finishReason $response.choices.finish_reason | Out-String) -InformationAction Continue
                     Write-Verbose "Get-PSAOAIPromptFilterResults"
@@ -658,6 +664,13 @@ function Invoke-PSAOAIChatCompletion {
                 }
                 # Add the user message to the messages
                 $messages += @{"role" = "user"; "content" = $user_message }
+
+                write-verbose ("Elements in message array: "+$messages.Count | out-string) -verbose
+                # Ensure the messages array consists of only the last 10 elements
+                if ($messages.Count -gt 10 -and $o1) {
+                    $messages = $messages[-10..-1]
+                    
+                }
 
                 # Write the user response to the log file
                 Write-LogMessage -Message "User input:`n======`n$user_message`n======`n" -LogFile $logfile
