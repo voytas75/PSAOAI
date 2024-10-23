@@ -665,7 +665,7 @@ function Invoke-PSAOAIChatCompletion {
                 # Add the user message to the messages
                 $messages += @{"role" = "user"; "content" = $user_message }
 
-                write-verbose ("Elements in message array: "+$messages.Count | out-string) -verbose
+                write-verbose ("Elements in message array: "+$messages.Count | out-string)
                 # Ensure the messages array consists of only the last 10 elements
                 if ($messages.Count -gt 10 -and $o1) {
                     $messages = $messages[-10..-1]

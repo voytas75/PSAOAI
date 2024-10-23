@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Fix
 
+- Chat: remove permanent verbose message.
+
 ### Changed
 
 ## [0.6.1] - 2024.10.23
