@@ -4,7 +4,7 @@
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/A0A6KYBUS)
 
-[![status](https://img.shields.io/badge/PROD-v0.6.1-green)](https://github.com/voytas75/PSAOAI/blob/master/docs/ReleaseNotes.md) &nbsp; [![status](https://img.shields.io/badge/DEV-v0.6.2-red)](https://github.com/voytas75/PSAOAI/blob/master/docs/ReleaseNotes.md) &nbsp; ![PowerShell version](https://img.shields.io/badge/PowerShell-v5.1-blue) &nbsp; ![PowerShell version](https://img.shields.io/badge/PowerShell-v7-darkblue) &nbsp; [![PowerShell Gallery Version (including pre-releases)](https://img.shields.io/powershellgallery/v/PSAOAI)](https://www.powershellgallery.com/packages/PSAOAI) &nbsp; [![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/PSAOAI)](https://www.powershellgallery.com/packages/PSAOAI) &nbsp; [![Codacy Badge](https://app.codacy.com/project/badge/Grade/b299e2b2499942589ee6fe26c972fbb9)](https://app.codacy.com/gh/voytas75/PSAOAI/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![status](https://img.shields.io/badge/PROD-v0.6.2-green)](https://github.com/voytas75/PSAOAI/blob/master/docs/ReleaseNotes.md) &nbsp; [![status](https://img.shields.io/badge/DEV-v0.6.3-red)](https://github.com/voytas75/PSAOAI/blob/master/docs/ReleaseNotes.md) &nbsp; ![PowerShell version](https://img.shields.io/badge/PowerShell-v5.1-blue) &nbsp; ![PowerShell version](https://img.shields.io/badge/PowerShell-v7-darkblue) &nbsp; [![PowerShell Gallery Version (including pre-releases)](https://img.shields.io/powershellgallery/v/PSAOAI)](https://www.powershellgallery.com/packages/PSAOAI) &nbsp; [![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/PSAOAI)](https://www.powershellgallery.com/packages/PSAOAI) &nbsp; [![Codacy Badge](https://app.codacy.com/project/badge/Grade/b299e2b2499942589ee6fe26c972fbb9)](https://app.codacy.com/gh/voytas75/PSAOAI/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 ## Overview
 
@@ -20,7 +20,7 @@ Whether you're looking to automate tasks, generate insightful data, or simply ex
 
 The PSAOAI (PowerShell Azure OpenAI) module offers a comprehensive set of features designed to interact seamlessly with Azure OpenAI Services. Below is an improved and detailed list of the module's features:
 
-- **Chat Completion**: Generate conversational responses using the Azure OpenAI API, enabling interactive and dynamic chat experiences, including support for `o1` models.
+- **Chat Completion**: Generate conversational responses using the Azure OpenAI API, enabling interactive and dynamic chat experiences, including support for `o1` and `o3` models.
 - **Text Embedding**: Create high-dimensional vector representations of text for various NLP tasks such as similarity analysis and clustering.
 - **Image Generation (DALL-E 3)**: Generate high-quality images from textual descriptions using the DALL-E 3 model, allowing for creative and illustrative outputs.
 - **Secure API Key Management**: Safeguard your API keys with secure storage and retrieval mechanisms, ensuring the protection of sensitive information.
@@ -78,10 +78,18 @@ $resule = "AZURE Logic App 'IF' element" | Invoke-PSAOAIChatCompletion -APIVersi
 -FrequencyPenalty 0 -PresencePenalty 0 -simpleresponse -SystemPrompt "Explain to me" -Stream $true
 ```
 
+**Example 4**:
+
+This example illustrates how to invoke the module using the `-o3` switch, specifying that the `o3` model should be utilized. The `o3` model is particularly suited for scenarios requiring specialized handling, detailed context, or advanced reasoning capabilities.
+
+```powershell
+Invoke-PSAOAIChatCompletion -Deployment "model_o3" -o3 -usermessage "Explain to me: $(Get-Content <plain_text_file_path> | out-string) `nReturn as Markdown format" -OneTimeUserPrompt
+```
+
 ### Completion
 
 ```powershell
-Invoke-PSAOAIcompletion -usermessage "explain winform" -Deployment "35TURBO" -User "BobbyK" -simpleresponse -Stream $false
+Invoke-PSAOAIcompletion -usermessage "explain winform" -Deployment "gpt45" -User "BobbyK" -simpleresponse -Stream $false
 ```
 
 ### Generation image
@@ -97,7 +105,7 @@ a generic, anonymous sculpture." -quality hd
 ### Embeddings
 
 ```powershell
-$response = "Hello, World!" | Invoke-PSAOAIEmbedding -User "Gemini" -Verbose -Deployment "gpt-7" -simpleresponse
+$response = "Hello, World!" | Invoke-PSAOAIEmbedding -User "Gemini" -Verbose -Deployment "gpt-45" -simpleresponse
 $response
 ```
 
