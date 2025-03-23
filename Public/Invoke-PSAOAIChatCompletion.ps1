@@ -129,7 +129,9 @@ function Invoke-PSAOAIChatCompletion {
         [Parameter(Mandatory = $false)]
         [switch]$JSONMode = $false,
         [Parameter(Mandatory = $false)]
-        [switch]$o1 = $false 
+        [switch]$o1 = $false,
+        [Parameter(Mandatory = $false)]
+        [switch]$o3 = $false
     )
 
     # Function to assemble system and user messages
@@ -327,6 +329,10 @@ function Invoke-PSAOAIChatCompletion {
             # Ask for specific input for the o1 scenario
             $usermessage = Read-Host -Prompt "Please enter the user message for the o1 scenario"
         }
+        elseif ($o3) {
+            # Ask for specific input for the o3 scenario
+            $usermessage = Read-Host -Prompt "Please enter the user message for the o3 scenario"
+        }
         else {
             # Regular input prompt
             $usermessage = Read-Host -Prompt "Please enter the user message"
@@ -384,8 +390,8 @@ function Invoke-PSAOAIChatCompletion {
         }
     }
 
-    if ($o1) {
-        $stream = $false # stream is set to false for 'o1' mode
+    if ($o1 -or $o3) {
+        $stream = $false # stream is set to false for 'o1' or 'o3' mode
     }
 
     if ($OneTimeUserPrompt) {
@@ -474,7 +480,7 @@ function Invoke-PSAOAIChatCompletion {
 
         # system prompt
         
-        if (-not $o1) {
+        if (-not ($o1 -or $o3)) {
             if ($SystemPromptFileName) {
                 $system_message = get-content -path $SystemPromptFileName -Encoding UTF8 -Raw 
             }
@@ -513,7 +519,7 @@ function Invoke-PSAOAIChatCompletion {
         
 
         # Get the messages from the system and user
-        if ($o1) {
+        if ($o1 -or $o3) {
             $messages = @()
             $messages += Get-PSAOAIMessageso1 -UserMessage $userMessage
         }
@@ -530,7 +536,7 @@ function Invoke-PSAOAIChatCompletion {
         # Write the URL to the verbose output
         Write-Verbose "urlChat: $urlChat"
 
-        if (-not $o1) {
+        if (-not ($o1 -or $o3)) {
             # Write the system prompt to the log file
             Write-LogMessage -Message "System promp:`n======`n$system_message`n======`n" -LogFile $logfile
         }
@@ -539,7 +545,7 @@ function Invoke-PSAOAIChatCompletion {
 
         do {
             # Get the body of the message
-            if ($o1) {
+            if ($o1 -or $o3) {
                 $body = Get-PSAOAIChatBodyo1 -messages $messages -max_completion_tokens $MaxTokens
             }
             else {
@@ -557,10 +563,14 @@ function Invoke-PSAOAIChatCompletion {
                 }
                 if ($o1) {
                     $o1DeailtsBanner = "{Mode: 'o1', max_completion_tokens: '$MaxTokens'} "
+                } elseif ($o3) {
+                    $o3DeailtsBanner = "{Mode: 'o3', max_completion_tokens: '$MaxTokens'} "
                 }
                 if ($SystemPromptFileName) {
                     if ($o1) {
                         Write-Host $o1DeailtsBanner -NoNewline -ForegroundColor Magenta
+                    } elseif ($o3) {
+                        Write-Host $o3DeailtsBanner -NoNewline -ForegroundColor Magenta
                     }
                     else {
                         Write-Host "{SysPFile:'$(Split-Path -Path $SystemPromptFileName -Leaf)', temp:'$($parameters['Temperature'])', top_p:'$($parameters['TopP'])', max_tokens:'${Maxtokens}', fp:'${FrequencyPenalty}', pp:'${PresencePenalty}', user:'${User}', n:'${N}', stop:'${Stop}', stream:'${Stream}'} " -NoNewline -ForegroundColor Magenta
@@ -569,6 +579,9 @@ function Invoke-PSAOAIChatCompletion {
                 else {
                     if ($o1) {
                         Write-Host $o1DeailtsBanner -NoNewline -ForegroundColor Magenta
+                    } 
+                    elseif ($o3) {
+                        Write-Host $o3DeailtsBanner -NoNewline -ForegroundColor Magenta
                     }
                     else {
                         Write-Host "{SysPrompt, temp:'$($parameters['Temperature'])', top_p:'$($parameters['TopP'])', max_tokens:'${Maxtokens}', fp:'${FrequencyPenalty}', pp:'${PresencePenalty}', user:'${User}', n:'${N}', stop:'${Stop}', stream:'${Stream}'} " -NoNewline -ForegroundColor Magenta
@@ -611,7 +624,7 @@ function Invoke-PSAOAIChatCompletion {
             # If there is a one-time user prompt, process it
             if ($OneTimeUserPrompt) {
                 Write-Verbose "OneTimeUserPrompt output with return"
-                if (-not $simpleresponse -and (-not $Stream) -and (-not $o1)) {
+                if (-not $simpleresponse -and (-not $Stream) -and (-not ($o1 -or $o3))) {
                     Write-Verbose "Show-FinishReason"
                     Write-Information -MessageData (Show-FinishReason -finishReason $response.choices.finish_reason | Out-String) -InformationAction Continue
                     Write-Verbose "Get-PSAOAIPromptFilterResults"
@@ -667,7 +680,7 @@ function Invoke-PSAOAIChatCompletion {
 
                 write-verbose ("Elements in message array: "+$messages.Count | out-string)
                 # Ensure the messages array consists of only the last 10 elements
-                if ($messages.Count -gt 10 -and $o1) {
+                if ($messages.Count -gt 10 -and ($o1 -or $o3)) {
                     $messages = $messages[-10..-1]
                     
                 }
