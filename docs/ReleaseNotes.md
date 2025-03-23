@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
+- Enhanced Get-PSAOAIEnv function to partially mask sensitive API keys.
+
 ## [0.6.1] - 2024.10.23
 
 ### Added
