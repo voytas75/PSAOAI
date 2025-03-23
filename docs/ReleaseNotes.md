@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Added
 
+- Added support for a new optional parameter 'o3' (o3 models)
+
 ### Fix
 
 - Chat: remove permanent verbose message.
