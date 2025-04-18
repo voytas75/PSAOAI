@@ -40,16 +40,27 @@ function Invoke-PSAOAIApiRequest {
     # Try to send the API request and handle any errors
     try {
         # Start a new job to send the API request
-        $response = Start-Job -ScriptBlock {
-            param($url, $headers, $bodyJSON, $timeout)
-            # Send the API request
-            Invoke-RestMethod -Uri $url -Method POST -Headers $headers -Body $bodyJSON -TimeoutSec $timeout -ErrorAction Stop
-        } -ArgumentList $url, $headers, $bodyJSON, $timeout
-
         #$response = Start-Job -ScriptBlock {
         #    param($url, $headers, $bodyJSON, $timeout)
-        #    Invoke-WebRequest -Uri $url -Method POST -Headers $headers -Body $bodyJSON -TimeoutSec $timeout -ErrorAction Stop -ContentType 'application/json; charset=utf-8' 
+        #    # Send the API request
+        #    Invoke-RestMethod -Uri $url -Method POST -Headers $headers -Body $bodyJSON -TimeoutSec $timeout -ErrorAction Stop
         #} -ArgumentList $url, $headers, $bodyJSON, $timeout
+
+        $response = Start-Job -ScriptBlock {
+            param($url, $headers, $bodyJSON, $timeout)
+            $response = Invoke-WebRequest -Uri $url -Method POST -Headers $headers -Body $bodyJSON -TimeoutSec $timeout -ErrorAction Stop -ContentType 'application/json; charset=utf-8' 
+# Decode the raw response stream using UTF-8 encoding
+$utf8 = [System.Text.Encoding]::UTF8
+$reader = New-Object System.IO.StreamReader($response.RawContentStream, $utf8)
+$jsonString = $reader.ReadToEnd()
+$reader.Close()
+
+# Parse the JSON response
+$responseJson = $jsonString | ConvertFrom-Json
+
+# Output only the assistant's reply
+return $responseJson
+        } -ArgumentList $url, $headers, $bodyJSON, $timeout
         
 
         # Write verbose output for the job
