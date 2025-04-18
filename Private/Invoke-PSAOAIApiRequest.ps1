@@ -45,7 +45,13 @@ function Invoke-PSAOAIApiRequest {
             # Send the API request
             Invoke-RestMethod -Uri $url -Method POST -Headers $headers -Body $bodyJSON -TimeoutSec $timeout -ErrorAction Stop
         } -ArgumentList $url, $headers, $bodyJSON, $timeout
+
+        #$response = Start-Job -ScriptBlock {
+        #    param($url, $headers, $bodyJSON, $timeout)
+        #    Invoke-WebRequest -Uri $url -Method POST -Headers $headers -Body $bodyJSON -TimeoutSec $timeout -ErrorAction Stop -ContentType 'application/json; charset=utf-8' 
+        #} -ArgumentList $url, $headers, $bodyJSON, $timeout
         
+
         # Write verbose output for the job
         Write-Verbose ("Job: $($response | ConvertTo-Json)" )
 
@@ -71,8 +77,6 @@ function Invoke-PSAOAIApiRequest {
 
         # Return the response
         return $response
-
-        Write-Host ""
     }
     # Catch any errors and write a warning
     catch {
