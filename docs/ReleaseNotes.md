@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Added
 
+- Added UTF-8 decoding for o1, o3 response stream.
+
 ### Fix
 
 ### Changed
