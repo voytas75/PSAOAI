@@ -14,6 +14,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
+- change Invoke-RestMethod to Invoke-WebRequest
+
 ## [0.6.2] - 2025.03.23
 
 ### Added
