@@ -39,7 +39,7 @@ Install-Module -Name PSAOAI
 Import module:
 
 ```powershell
-Import-Module -Module PSAOAI
+Import-Module -Name PSAOAI
 ```
 
 To get all commands in installed module including cmdlets, functions and aliases:
