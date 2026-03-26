@@ -2,3 +2,4 @@
 .cursor/
 .vscode/
 temp/
+.tmp-*/
