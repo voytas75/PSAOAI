@@ -40,6 +40,8 @@ function Set-EnvironmentVariable {
     if (-not ([string]::IsNullOrEmpty($VariableValue))) {
         # Attempt to set the environment variable to the provided value
         try {
+            Set-Item -Path "Env:$VariableName" -Value $VariableValue
+            [System.Environment]::SetEnvironmentVariable($VariableName, $VariableValue, "Process")
             [System.Environment]::SetEnvironmentVariable($VariableName, $VariableValue, "User")
         }
         # If setting the variable failed, display an error message

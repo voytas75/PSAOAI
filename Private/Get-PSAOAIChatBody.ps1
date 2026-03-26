@@ -81,16 +81,7 @@ function Get-PSAOAIChatBody {
     )
 
 
-    if ($JSONMode) {
-        $ResponseType = "json_object"
-    }
-    else {
-        $ResponseType = "text"
-    }
-    #$ResponseType = "text"
-    
-    # Construct and return the body for the API request
-    return @{
+    $body = @{
         'messages'          = $messages
         'temperature'       = $temperature
         'n'                 = $n
@@ -101,8 +92,14 @@ function Get-PSAOAIChatBody {
         'stream'            = $stream
         'user'              = $user
         'max_tokens'        = $MaxTokens
-        'response_format'   = @{ 
-            'type' = $ResponseType 
+    }
+
+    if ($JSONMode) {
+        $body['response_format'] = @{ 
+            'type' = 'json_object'
         }
     }
+    
+    # Construct and return the body for the API request
+    return $body
 }

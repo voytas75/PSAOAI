@@ -52,6 +52,13 @@
             return $null
         }
 
+        if ([string]::IsNullOrWhiteSpace($ApiKey)) {
+            throw "API key '$ApiKeyVariable' resolved to an empty value."
+        }
+
+        $ApiKey = $ApiKey.Trim()
+        $ApiKey = $ApiKey -replace "`r|`n|`0", ""
+
         # Return the headers for the API request
         return @{
             "Content-Type" = "application/json; charset=utf-8"

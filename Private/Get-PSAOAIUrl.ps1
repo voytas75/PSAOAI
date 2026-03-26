@@ -41,20 +41,23 @@ Outputs a string representing the URL for the Azure OpenAI API request.
         [string]$Mode
     )
 
+    $normalizedEndpoint = $Endpoint.TrimEnd('/')
+    $encodedDeployment = [System.Uri]::EscapeDataString($Deployment)
+
     switch ($mode) {
         'Chat' { 
             # Construct and return the URL for the API request
-            return "${Endpoint}/openai/deployments/${Deployment}/chat/completions?api-version=${APIVersion}"
+            return "${normalizedEndpoint}/openai/deployments/${encodedDeployment}/chat/completions?api-version=${APIVersion}"
         }
         'Completion' {  
             # Construct and return the URL for the API request
-            return "${Endpoint}/openai/deployments/${Deployment}/completions?api-version=${APIVersion}"
+            return "${normalizedEndpoint}/openai/deployments/${encodedDeployment}/completions?api-version=${APIVersion}"
         }
         'Dalle3' { 
-            return "${Endpoint}/openai/deployments/${Deployment}/images/generations?api-version=${apiVersion}"
+            return "${normalizedEndpoint}/openai/deployments/${encodedDeployment}/images/generations?api-version=${apiVersion}"
         }
         'Embedding' {
-            return "${Endpoint}/openai/deployments/${Deployment}/embeddings?api-version=${ApiVersion}"
+            return "${normalizedEndpoint}/openai/deployments/${encodedDeployment}/embeddings?api-version=${ApiVersion}"
         }
         Default {}
     }

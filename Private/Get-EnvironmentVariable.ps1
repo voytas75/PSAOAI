@@ -33,26 +33,43 @@ function Get-EnvironmentVariable {
     # Outputting the name of the variable to the verbose output stream for debugging
     Write-Verbose "Variable Name: $VariableName"
 
-    # Fetch the value of the environment variable
-    $VariableValue = [System.Environment]::GetEnvironmentVariable($VariableName, "User")
+    # Fetch the value of the environment variable with cross-platform fallback
+    $VariableValue = [System.Environment]::GetEnvironmentVariable($VariableName, "Process")
+    if ([string]::IsNullOrEmpty($VariableValue)) {
+        $VariableValue = [System.Environment]::GetEnvironmentVariable($VariableName, "User")
+    }
+    if ([string]::IsNullOrEmpty($VariableValue)) {
+        $VariableValue = [System.Environment]::GetEnvironmentVariable($VariableName, "Machine")
+    }
+    if ([string]::IsNullOrEmpty($VariableValue)) {
+        $VariableValue = (Get-Item -Path "Env:$VariableName" -ErrorAction SilentlyContinue).Value
+    }
 
     if ([string]::IsNullOrEmpty($VariableValue)) {
         return $null
     }
     # If Secure is set to $true, transform the value of the environment variable to plain text
     if ($Secure) {
-        
-        try {
-            $VariableValue = Convert-SecureStringToPlainText -SecureString ($VariableValue | ConvertTo-SecureString)
-            # Outputting the value of the variable to the verbose output stream for debugging
-            Write-Verbose "Variable Value: *****"
-            return $VariableValue
-        }
-        catch {
-            Show-Error -ErrorVar $_
-            return $null
+        $trimmedValue = $VariableValue.Trim()
+
+        # Windows ConvertFrom-SecureString payloads typically start with this DPAPI marker.
+        # On WSL/Linux we often receive plain text secrets through process env, and attempting
+        # to round-trip them through ConvertTo-SecureString corrupts the value.
+        if ($trimmedValue -match '^01000000d08c9ddf') {
+            try {
+                $secureValue = $trimmedValue | ConvertTo-SecureString -ErrorAction Stop
+                $VariableValue = Convert-SecureStringToPlainText -SecureString $secureValue
+                Write-Verbose "Variable Value: *****"
+                return $VariableValue
+            }
+            catch {
+                Write-Verbose "Failed to decode secure environment value for '$VariableName'; falling back to raw value."
+                return $trimmedValue
+            }
         }
 
+        Write-Verbose "Using raw secure environment value for '$VariableName'."
+        return $trimmedValue
     }
     else {
        

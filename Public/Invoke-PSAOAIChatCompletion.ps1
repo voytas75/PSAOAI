@@ -131,7 +131,9 @@ function Invoke-PSAOAIChatCompletion {
         [Parameter(Mandatory = $false)]
         [switch]$o1 = $false,
         [Parameter(Mandatory = $false)]
-        [switch]$o3 = $false
+        [switch]$o3 = $false,
+        [Parameter(Mandatory = $false)]
+        [switch]$ReasoningModel = $false
     )
 
     # Function to assemble system and user messages
@@ -390,15 +392,29 @@ function Invoke-PSAOAIChatCompletion {
         }
     }
 
-    if ($o1 -or $o3) {
-        $stream = $false # stream is set to false for 'o1' or 'o3' mode
+    if ($Deployment -match '^(gpt-5(\.|$)|o[1345](\.|-|$))') {
+        $ReasoningModel = $true
+    }
+
+    if ($o1 -or $o3 -or $ReasoningModel) {
+        $stream = $false # stream is set to false for reasoning-model mode
     }
 
     if ($OneTimeUserPrompt) {
         [string]$OneTimeUserPrompt = ($usermessage | out-string)
     }
 
-    $logfileDirectory = Join-Path -Path ([Environment]::GetFolderPath("MyDocuments")) -ChildPath $script:modulename
+    $documentsPath = [Environment]::GetFolderPath("MyDocuments")
+    if ([string]::IsNullOrWhiteSpace($documentsPath)) {
+        if (-not [string]::IsNullOrWhiteSpace($HOME)) {
+            $documentsPath = $HOME
+        }
+        else {
+            $documentsPath = (Get-Location).Path
+        }
+    }
+
+    $logfileDirectory = Join-Path -Path $documentsPath -ChildPath $script:modulename
     if ($LogFolder) {
         $logfileDirectory = $LogFolder
     }
@@ -480,25 +496,23 @@ function Invoke-PSAOAIChatCompletion {
 
         # system prompt
         
-        if (-not ($o1 -or $o3)) {
-            if ($SystemPromptFileName) {
-                $system_message = get-content -path $SystemPromptFileName -Encoding UTF8 -Raw 
+        if ($SystemPromptFileName) {
+            $system_message = get-content -path $SystemPromptFileName -Encoding UTF8 -Raw 
+        }
+        else {
+            if ($SystemPrompt) {
+                $system_message = $SystemPrompt
             }
             else {
-                if ($SystemPrompt) {
-                    $system_message = $SystemPrompt
-                }
-                else {
-                    #$system_message = Read-Host -Prompt "Enter the system prompt message"
-                    $system_message = "You are a helpful, knowledgeable, and polite assistant. Your goal is to assist the user by providing accurate, concise, and informative responses to their queries. Remain neutral and avoid giving opinions unless explicitly asked. Provide explanations where necessary, but keep the responses simple and clear."
-                }
+                #$system_message = Read-Host -Prompt "Enter the system prompt message"
+                $system_message = "You are a helpful, knowledgeable, and polite assistant. Your goal is to assist the user by providing accurate, concise, and informative responses to their queries. Remain neutral and avoid giving opinions unless explicitly asked. Provide explanations where necessary, but keep the responses simple and clear."
             }
-            # cleaning system prompt
-            $system_message = [System.Text.RegularExpressions.Regex]::Replace($system_message, "[^\x00-\x7F]", "")        
+        }
+        # cleaning system prompt
+        $system_message = [System.Text.RegularExpressions.Regex]::Replace($system_message, "[^\x00-\x7F]", "")        
 
-            if ($VerbosePreference -eq "Continue") {
-                Write-verbose (Write-PSAOAIMessage -content $system_message -stream "system" | Out-String)
-            }
+        if ($VerbosePreference -eq "Continue") {
+            Write-verbose (Write-PSAOAIMessage -content $system_message -stream "system" | Out-String)
         }
         
 
@@ -523,6 +537,18 @@ function Invoke-PSAOAIChatCompletion {
             $messages = @()
             $messages += Get-PSAOAIMessageso1 -UserMessage $userMessage
         }
+        elseif ($ReasoningModel) {
+            $messages = @(
+                @{
+                    "role"    = "developer"
+                    "content" = $system_message
+                },
+                @{
+                    "role"    = "user"
+                    "content" = $userMessage
+                }
+            )
+        }
         else {
             $messages = Get-PSAOAIMessages -systemmessage $system_message -UserMessage $userMessage -JSONMode $JSONMode
         }
@@ -536,24 +562,53 @@ function Invoke-PSAOAIChatCompletion {
         # Write the URL to the verbose output
         Write-Verbose "urlChat: $urlChat"
 
-        if (-not ($o1 -or $o3)) {
-            # Write the system prompt to the log file
-            Write-LogMessage -Message "System promp:`n======`n$system_message`n======`n" -LogFile $logfile
-        }
+        # Write the system prompt to the log file
+        Write-LogMessage -Message "System promp:`n======`n$system_message`n======`n" -LogFile $logfile
         # Write the user message to the log file
         Write-LogMessage -Message "User message:`n======`n$userMessage`n======`n" -LogFile $logfile
 
         do {
             # Get the body of the message
-            if ($o1 -or $o3) {
+            if ($o1 -or $o3 -or $ReasoningModel) {
                 $body = Get-PSAOAIChatBodyo1 -messages $messages -max_completion_tokens $MaxTokens
+                if ($ReasoningModel) {
+                    $body['reasoning_effort'] = 'medium'
+                }
             }
             else {
                 $body = Get-PSAOAIChatBody -messages $messages -temperature $parameters['Temperature'] -top_p $parameters['TopP'] -frequency_penalty $FrequencyPenalty -presence_penalty $PresencePenalty -user $User -n $N -stop $Stop -stream $Stream -MaxTokens $MaxTokens -JSONMode $JSONMode
             }
 
             # Convert the body to JSON
-            $bodyJSON = ($body | ConvertTo-Json)
+            $bodyJSON = ($body | ConvertTo-Json -Depth 20)
+
+            $requestId = [guid]::NewGuid().ToString()
+            $diagnosticMetadata = [ordered]@{
+                requestId          = $requestId
+                operation          = 'chat-completion'
+                deployment         = $Deployment
+                apiVersion         = $APIVersion
+                reasoningModel     = $ReasoningModel
+                stream             = $Stream
+                user               = $User
+                logFile            = $logfile
+                systemPromptLength = if ($null -ne $system_message) { $system_message.Length } else { 0 }
+                userPromptLength   = if ($null -ne $userMessage) { $userMessage.Length } else { 0 }
+                bodyLength         = $bodyJSON.Length
+            }
+
+            if ($logfile) {
+                $logDirectory = Split-Path -Path $logfile -Parent
+                $logBaseName = [System.IO.Path]::GetFileNameWithoutExtension($logfile)
+                $requestJsonPath = Join-Path $logDirectory "$logBaseName.request-$requestId.body.json"
+                $requestMetaPath = Join-Path $logDirectory "$logBaseName.request-$requestId.meta.json"
+
+                Set-Content -Path $requestJsonPath -Value $bodyJSON -Encoding UTF8
+                ($diagnosticMetadata | ConvertTo-Json -Depth 8) | Set-Content -Path $requestMetaPath -Encoding UTF8
+                Write-LogMessage -Message "Diagnostic requestId: $requestId" -LogFile $logfile
+                Write-LogMessage -Message "Diagnostic request body saved to: $requestJsonPath" -LogFile $logfile
+                Write-LogMessage -Message "Diagnostic request metadata saved to: $requestMetaPath" -LogFile $logfile
+            }
             
             # If not a simple response, display chat completion and other details
             if (-not $simpleresponse -and -not $userWasAsked) {
@@ -600,17 +655,35 @@ function Invoke-PSAOAIChatCompletion {
                 $assistant_response = $response
             }
             else {
-                $response = Invoke-PSAOAIApiRequest -url $urlChat -headers $headers -bodyJSON $bodyJSON -timeout $TimeOut
-                if ([string]::IsNullOrEmpty($($response.choices[0].message.content))) {
+                $response = Invoke-PSAOAIApiRequest -url $urlChat -headers $headers -bodyJSON $bodyJSON -timeout $TimeOut -logfile $logfile -DiagnosticMetadata $diagnosticMetadata
+                $responseType = if ($null -ne $response) { $response.GetType().FullName } else { $null }
+                $choicesCount = if ($null -ne $response.choices) { $response.choices.Count } else { 0 }
+                $messageContent = $null
+                if ($choicesCount -gt 0) {
+                    $messageContent = $response.choices[0].message.content
+                }
+
+                Write-LogMessage -Message "Success-path responseType: $responseType" -LogFile $logfile
+                Write-LogMessage -Message "Success-path choicesCount: $choicesCount" -LogFile $logfile
+                Write-LogMessage -Message "Success-path firstMessageContentType: $(if ($null -ne $messageContent) { $messageContent.GetType().FullName } else { '<null>' })" -LogFile $logfile
+                Write-LogMessage -Message "Success-path firstMessageContentLength: $(if ($null -ne $messageContent) { $messageContent.Length } else { 0 })" -LogFile $logfile
+
+                if (-not $response) {
+                    throw "The API request returned no response object."
+                }
+                if (-not $response.choices -or $response.choices.Count -eq 0) {
+                    throw "The API response did not include any choices."
+                }
+                if ([string]::IsNullOrEmpty($messageContent)) {
                     Write-Warning "Response is empty"
                     Write-LogMessage -Message "Response is empty" "WARNING" -LogFile $logfile
                     return
                 }
                 # Write the received job to verbose output
-                Write-Verbose ("Received job output:`n$($response | ConvertTo-Json)" | Out-String)
+                Write-Verbose ("Received job output:`n$($response | ConvertTo-Json -Depth 100)" | Out-String)
                 # Get the assistant response
                 
-                $assistant_response = $response.choices[0].message.content
+                $assistant_response = $messageContent
             }
 
             #if (-not $o1) {

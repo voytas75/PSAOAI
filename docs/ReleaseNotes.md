@@ -4,13 +4,28 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.6.4] - 2025.04.18
+## [0.6.5] - Unreleased
 
 ### Added
 
 ### Fix
 
 ### Changed
+
+## [0.6.4] - 2026.03.26
+
+### Added
+
+- Added `tools/diagnostics/Test-Gpt54DirectResponseMatrix.ps1` for direct `gpt-5.4` request/response diagnostics.
+
+### Fix
+
+- Improved WSL/Linux and Azure OpenAI compatibility for environment variable and API key handling.
+
+### Changed
+
+- Improved request/response diagnostics with saved request metadata plus success/error artifacts for easier debugging.
+- Improved handling and troubleshooting for Azure-backed flows, including direct `gpt-5.4` diagnostics.
 
 ## [0.6.3] - 2025.04.18
 
