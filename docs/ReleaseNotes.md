@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Changed
 
+- Performed additional packaging cleanup for a cleaner release artifact.
+
 ## [0.6.4] - 2026.03.26
 
 ### Added
