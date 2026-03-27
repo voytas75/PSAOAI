@@ -1,90 +1,122 @@
 # PowerShell Azure OpenAI (PSAOAI) Module
 
+[![PowerShell 5.1+](https://img.shields.io/badge/PowerShell-5.1%2B-5391FE?logo=powershell&logoColor=white)](https://learn.microsoft.com/powershell/)
+[![PowerShell 7](https://img.shields.io/badge/PowerShell-7-2C5AA0?logo=powershell&logoColor=white)](https://learn.microsoft.com/powershell/)
+[![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/PSAOAI)](https://www.powershellgallery.com/packages/PSAOAI)
+[![PowerShell Gallery Downloads](https://img.shields.io/powershellgallery/dt/PSAOAI)](https://www.powershellgallery.com/packages/PSAOAI)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/b299e2b2499942589ee6fe26c972fbb9)](https://app.codacy.com/gh/voytas75/PSAOAI/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Module Version 0.6.5](https://img.shields.io/badge/module-0.6.5-green.svg)](https://github.com/voytas75/PSAOAI/blob/master/docs/ReleaseNotes.md)
+
 ![PSAOAI](https://github.com/voytas75/PSAOAI/blob/master/images/PSAOAI128.png?raw=true "PowerShell Azure OpenAI (PSAOAI) Module")
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/A0A6KYBUS)
 
-[![status](https://img.shields.io/badge/PROD-v0.6.4-green)](https://github.com/voytas75/PSAOAI/blob/master/docs/ReleaseNotes.md) &nbsp; [![status](https://img.shields.io/badge/DEV-v0.6.5-red)](https://github.com/voytas75/PSAOAI/blob/master/docs/ReleaseNotes.md) &nbsp; ![PowerShell version](https://img.shields.io/badge/PowerShell-v5.1-blue) &nbsp; ![PowerShell version](https://img.shields.io/badge/PowerShell-v7-darkblue) &nbsp; [![PowerShell Gallery Version (including pre-releases)](https://img.shields.io/powershellgallery/v/PSAOAI)](https://www.powershellgallery.com/packages/PSAOAI) &nbsp; [![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/PSAOAI)](https://www.powershellgallery.com/packages/PSAOAI) &nbsp; [![Codacy Badge](https://app.codacy.com/project/badge/Grade/b299e2b2499942589ee6fe26c972fbb9)](https://app.codacy.com/gh/voytas75/PSAOAI/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+PSAOAI is a PowerShell module for working with Azure OpenAI from scripts, consoles, and automation workflows.
 
-## Overview
+It gives you a PowerShell-native surface for chat completions, embeddings, image generation, and environment handling without forcing you to drop into raw REST calls every time.
 
-The PSAOAI (PowerShell Azure OpenAI) module is a powerful tool designed to interact with Azure OpenAI Services. It leverages the Azure OpenAI API to provide a seamless and efficient way to manage and utilize Azure OpenAI Services directly from your PowerShell environment.
-
-This module allows you to perform a variety of tasks such as managing, and interacting with OpenAI models, generating text, images, and analyzing the output. It is designed to be user-friendly and efficient, making it easy for both beginners and experienced users to leverage the power of Azure OpenAI Services.
-
-Whether you're looking to automate tasks, generate insightful data, or simply explore the capabilities of Azure OpenAI, the PSAOAI module is a valuable addition to your PowerShell toolkit.
+It is most useful when you want a practical PowerShell wrapper around Azure OpenAI that is easy to install from PowerShell Gallery, script, and reuse across automation tasks.
 
 ![PSAOAI](https://github.com/voytas75/PSAOAI/blob/master/images/PSAOAI.png?raw=true "PowerShell Azure OpenAI (PSAOAI) Module")
 
-## Features
+## Who this is for
 
-The PSAOAI (PowerShell Azure OpenAI) module offers a comprehensive set of features designed to interact seamlessly with Azure OpenAI Services. Below is an improved and detailed list of the module's features:
+PSAOAI is a good fit for:
+- PowerShell users who want a reusable Azure OpenAI module instead of ad-hoc REST snippets
+- automation engineers who want repeatable prompt, embedding, or image-generation workflows
+- people building higher-level tools on top of a PowerShell-native OpenAI integration layer
 
-- **Chat Completion**: Generate conversational responses using the Azure OpenAI API, enabling interactive and dynamic chat experiences, including support for `o1` and `o3` models.
-- **Text Embedding**: Create high-dimensional vector representations of text for various NLP tasks such as similarity analysis and clustering.
-- **Image Generation (DALL-E 3)**: Generate high-quality images from textual descriptions using the DALL-E 3 model, allowing for creative and illustrative outputs.
-- **Secure API Key Management**: Safeguard your API keys with secure storage and retrieval mechanisms, ensuring the protection of sensitive information.
-- **Response Logging**: Automatically log API responses for auditing, debugging, and analysis purposes, providing a comprehensive record of interactions.
-- **Customizable Parameters**: Fine-tune API requests with parameters such as temperature, top-p, frequency penalty, and presence penalty to control the behavior and creativity of the model outputs.
-- **Streamlined Commands**: Utilize user-friendly PowerShell cmdlets to perform complex tasks with simple commands, enhancing productivity and ease of use.
+PSAOAI is not the best fit for:
+- users who want a provider-agnostic framework first
+- people expecting a full desktop product rather than a scriptable module layer
+- cases where raw API experimentation is preferred over a PowerShell command surface
 
-## Installation
+## Quick start
 
-The module is available on [PowerShell Gallery](https://www.powershellgallery.com/packages/PSAOAI).
+### 1. Install the module
 
 ```powershell
 Install-Module -Name PSAOAI
-```
-
-Import module:
-
-```powershell
 Import-Module -Name PSAOAI
 ```
 
-To get all commands in installed module including cmdlets, functions and aliases:
+### 2. See what the module exports
 
 ```powershell
 Get-Command -Module PSAOAI
 ```
 
-## Usage
+### 3. Configure Azure OpenAI
 
-### Chat Completion
+Set the environment values needed by your Azure OpenAI deployment:
 
-**Example 1**:
+- `PSAOAI_API_AZURE_OPENAI_ENDPOINT`
+- `PSAOAI_API_AZURE_OPENAI_APIVERSION`
+- `PSAOAI_API_AZURE_OPENAI_CC_DEPLOYMENT`
+- `PSAOAI_API_AZURE_OPENAI_KEY`
 
-This example demonstrates how to use module with the `-o1` switch enabled, which indicates that the `o1` model is used. This scenario is specific to use cases where special handling or context is required.
-
-```powershell
-"<describe reasoning problem>" | Invoke-PSAOAIChatCompletion -Deployment "model_o1" -o1
-```
-
-**Example 2**:
+### 4. Run a simple chat completion
 
 ```powershell
-"AZURE Logic App 'IF' element" | Invoke-PSAOAIChatCompletion -APIVersion "2024-05-01-preview" -Endpoint 
-"https://example.openai.azure.com" -Deployment "example_model_gpt35_!" -User "BobbyK" -Temperature 0.2 -TopP 0.7 
--FrequencyPenalty 0 -PresencePenalty 0 -simpleresponse -SystemPrompt "Explain to me" -Stream $false -JSONMode
+"Explain Azure Logic App IF conditions in simple terms." |
+  Invoke-PSAOAIChatCompletion -Deployment "your_deployment" -SimpleResponse -Stream $false
 ```
 
-**Example 3**:
+## Supported scenarios
 
-This example demonstrates how to use the `Invoke-PSAOAIChatCompletion` cmdlet to generate a response from the Azure OpenAI API and save it to a variable when streaming is enabled. This prevents duplicating the response.
+- chat completions for scripted or interactive use
+- embeddings for search, similarity, or downstream automation
+- image generation through DALL-E 3
+- environment and key handling for repeated local usage
+- logging and reusable PowerShell-native integration in other tools
 
-```powershell
-$resule = "AZURE Logic App 'IF' element" | Invoke-PSAOAIChatCompletion -APIVersion "2024-05-01-preview" -Endpoint 
-"https://example.openai.azure.com" -Deployment "example_model_gpt35_!" -User "BobbyK" -Temperature 0.2 -TopP 0.7 
--FrequencyPenalty 0 -PresencePenalty 0 -simpleresponse -SystemPrompt "Explain to me" -Stream $true
-```
+## Known limitations
 
-**Example 4**:
+- The module is primarily positioned around **Azure OpenAI**; it is not a broad multi-provider abstraction layer.
+- Real usability depends on correct local environment configuration and valid deployment settings.
+- The smoothest first-run path is a single verified Azure OpenAI deployment, not a complex multi-model setup.
+- This repo currently presents itself more as a practical module than as a heavily packaged developer platform.
 
-This example illustrates how to invoke the module using the `-o3` switch, specifying that the `o3` model should be utilized. The `o3` model is particularly suited for scenarios requiring specialized handling, detailed context, or advanced reasoning capabilities.
+## Core capabilities
 
-```powershell
-Invoke-PSAOAIChatCompletion -Deployment "model_o3" -o3 -usermessage "Explain to me: $(Get-Content <plain_text_file_path> | out-string) `nReturn as Markdown format" -OneTimeUserPrompt
-```
+- **Chat completions** for interactive or scripted Azure OpenAI calls, including `o1` and `o3`-style usage.
+- **Embeddings** for similarity, retrieval, and downstream automation workflows.
+- **Image generation** through DALL-E 3.
+- **Secure key and environment handling** for repeated local usage.
+- **Response logging** for debugging, auditing, and operational review.
+- **PowerShell-native commands** that are easier to script and reuse than raw REST calls.
+
+## Usage examples
+
+### Chat completion
+
+- **Basic `o1`-style usage**
+
+  ```powershell
+  "<describe reasoning problem>" | Invoke-PSAOAIChatCompletion -Deployment "model_o1" -o1
+  ```
+
+- **Structured non-streaming example**
+
+  ```powershell
+  "AZURE Logic App 'IF' element" | Invoke-PSAOAIChatCompletion -APIVersion "2024-05-01-preview" -Endpoint 
+  "https://example.openai.azure.com" -Deployment "example_model_gpt35_!" -User "BobbyK" -Temperature 0.2 -TopP 0.7 
+  -FrequencyPenalty 0 -PresencePenalty 0 -simpleresponse -SystemPrompt "Explain to me" -Stream $false -JSONMode
+  ```
+
+- **Capture a streamed response into a variable**
+
+  ```powershell
+  $resule = "AZURE Logic App 'IF' element" | Invoke-PSAOAIChatCompletion -APIVersion "2024-05-01-preview" -Endpoint 
+  "https://example.openai.azure.com" -Deployment "example_model_gpt35_!" -User "BobbyK" -Temperature 0.2 -TopP 0.7 
+  -FrequencyPenalty 0 -PresencePenalty 0 -simpleresponse -SystemPrompt "Explain to me" -Stream $true
+  ```
+
+- **`o3`-style usage**
+
+  ```powershell
+  Invoke-PSAOAIChatCompletion -Deployment "model_o3" -o3 -usermessage "Explain to me: $(Get-Content <plain_text_file_path> | out-string) `nReturn as Markdown format" -OneTimeUserPrompt
+  ```
 
 ### Completion
 
@@ -92,7 +124,7 @@ Invoke-PSAOAIChatCompletion -Deployment "model_o3" -o3 -usermessage "Explain to 
 Invoke-PSAOAIcompletion -usermessage "explain winform" -Deployment "gpt45" -User "BobbyK" -simpleresponse -Stream $false
 ```
 
-### Generation image
+### Image generation
 
 ```powershell
 Invoke-PSAOAIDalle3 -Prompt "A finely detailed, broken marble figure head half-submerged in sandy terrain. The scene is 
@@ -109,11 +141,13 @@ $response = "Hello, World!" | Invoke-PSAOAIEmbedding -User "Gemini" -Verbose -De
 $response
 ```
 
-## Default Log and Data Folder
+## Default log and data folder
 
-The PSAOAI module uses default folder for storing log files and data. If specific paths are not provided, the module uses `<User's document folder>/PSAOAI/` folder.
+If specific paths are not provided, PSAOAI uses:
 
-*INFO*: In the PSAOAI PowerShell module, the default location for the log and data folder is the user's document folder. If the log and data folder does not exist, it will be created automatically when the module is imported.
+- `<User's document folder>/PSAOAI/`
+
+That folder is used for logs and module data and is created automatically when the module is imported.
 
 ## Versioning
 
@@ -121,15 +155,14 @@ We use [SemVer](http://semver.org/) for versioning.
 
 ## Contributing
 
-We welcome contributions from the community! Feel free to submit pull requests, report issues, or suggest new features to make the framework even more powerful and user-friendly.
+Contributions, issue reports, and improvement suggestions are welcome.
 
-**Clone the Repository:** Clone the PSAOAI repository to your local machine.
+If you want to extend the module, start by reviewing the exported commands, current release notes, and the existing PowerShell module layout in this repo.
 
 ### License
 
-The PSAOAI is released under the [MIT License](https://github.com/voytas75/PSAOAI/blob/master/LICENSE).
+PSAOAI is released under the [MIT License](https://github.com/voytas75/PSAOAI/blob/master/LICENSE).
 
-**Contact:**
-If you have any questions or need assistance, please feel free to reach out to us via [GitHub Issues](https://github.com/voytas75/PSAOAI/issues).
+## Contact
 
-Join us on the journey to make PowerShell scripting a truly awesome experience!
+If you have questions, bug reports, or improvement ideas, use [GitHub Issues](https://github.com/voytas75/PSAOAI/issues).
