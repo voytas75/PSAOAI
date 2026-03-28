@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  powershell-module-smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Import module manifest and verify exports
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Import-Module ./PSAOAI.psd1 -Force
+
+          $commands = Get-Command -Module PSAOAI | Select-Object -ExpandProperty Name
+          $required = @(
+            'Invoke-PSAOAIChatCompletion',
+            'Invoke-PSAOAICompletion',
+            'Invoke-PSAOAIDalle3',
+            'Invoke-PSAOAIEmbedding',
+            'Get-PSAOAIEnv',
+            'Clear-PSAOAIEnv'
+          )
+
+          foreach ($name in $required) {
+            if ($commands -notcontains $name) {
+              throw "Missing exported command: $name"
+            }
+          }
+
+          Write-Host "Verified exported commands:" ($required -join ', ')
+
+# Intentionally lightweight:
+# - validates manifest/module import and expected exported commands
+# - avoids live Azure/OpenAI calls or environment-dependent integration checks
