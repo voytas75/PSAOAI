@@ -1,6 +1,6 @@
 # PSAOAI — plan dodania Azure Responses API
 
-Status: S0–S3 zakończone offline GREEN; S4 rzeczywistego cmdletu potwierdzone live przez dot-source. Zwykły bootstrap modułu niekwalifikowany live. Lokalny release candidate 0.7.0, niewydany.
+Status: S0–S3 zakończone offline GREEN; S4 rzeczywistego cmdletu potwierdzone live przez dot-source. Zwykły bootstrap modułu niekwalifikowany live. Wersja 0.7.0 przygotowana do publikacji w PSGallery; publikacja Gallery należy do użytkownika.
 Baza: lokalny master, commit `50b24fd71696f6d89f65dfe4a50fec2e2d7f4471`; przed zapisem planu working tree czysty.
 Zakres pierwotnego wykonania: S0 → S3 offline. Później wykonano osobno zatwierdzone S4 opisane niżej. Końcowy closeout: tylko walidacja offline i dokumentacja, bez publikacji, zmian CI, instalacji, odczytu sekretów ani nowych wywołań modelu.
 
@@ -137,7 +137,7 @@ Alternatywa: rozszerzyć istniejący cmdlet ChatCompletion o tryb Responses. Jes
 
 ## Jeden następny slice
 
-S4 cmdletu oraz końcowy closeout offline zakończone; nie powtarzać akceptacji Azure. Zatwierdzono lokalne przygotowanie release candidate 0.7.0: wersje, metadane, dokumentacja i czysta paczka poza repo. Brak zgody na provider calls, odczyt sekretów, instalacje, commit/push/tagi, CI lub publikację. Bootstrap live, proxy i inne runtime’y/modele nadal poza zakresem.
+S4 cmdletu oraz końcowy closeout offline zakończone; nie powtarzać akceptacji Azure. Zatwierdzono lokalne przygotowanie release 0.7.0: wersje, metadane, dokumentacja i czysta paczka poza repo. Brak zgody na provider calls, odczyt sekretów, instalacje, commit/push/tagi, CI lub publikację. Bootstrap live, proxy i inne runtime’y/modele nadal poza zakresem.
 
 ## Aktualny checkpoint wykonania S1–S3
 
@@ -145,7 +145,7 @@ S4 cmdletu oraz końcowy closeout offline zakończone; nie powtarzać akceptacji
 - Aktualny SelfTest: to samo polecenie z `-SelfTest` → passed=2, failed=0, exit 0.
 - Historyczny pełny runner przed closeout: passed=48, failed=0, exit 0. Końcowy runner obejmuje dodatkowo odrzucanie singletonowej tablicy JSON jako root (realny loopback RED 48/1 → GREEN 49/0); serwer potwierdza dokładnie 10 POST, bez redirect-target i retry. Zakres: URL/body/parser/caller, pełne wyniki i nieznane pola, odmowy/incomplete, walidacja przed transportem, HTTP UTF-8, 400/401/429/500, redirect, timeout, invalid-json i invalid-utf8; diagnostyka bez markerów sekretu/promptu, TargetObject i InnerException puste. Proces sprzątany w finally.
 - Izolowany import: 8 eksportów (7 istniejących + nowy), 4 stare URL-e z kodowaniem deploymentu; rzeczywiście wykonane hooki PSGallery/REST/zapisu konfiguracji. Nie wykonywano prawdziwego network importu.
-- Manifest zachowuje UTF-16 LE BOM; wersje obu plików modułu obecnie 0.7.0 (lokalny release candidate). Stary transport, auth, bootstrap i CI bez zmian. README i ReleaseNotes opisują niewydany zakres offline oraz późniejszą akceptację live dot-sourced cmdletu.
+- Manifest zachowuje UTF-16 LE BOM; wersje obu plików modułu obecnie 0.7.0 (lokalny release). Stary transport, auth, bootstrap i CI bez zmian. README i ReleaseNotes opisują niewydany zakres offline oraz późniejszą akceptację live dot-sourced cmdletu.
 - Transport używa synchronicznego HttpClient bez proxy, automatycznych poświadczeń, redirectów i retry; nie emituje request ID ani payloadów. Środowiska wymagające proxy pozostają niekwalifikowane.
 - Ograniczenia: bootstrap modułu niekwalifikowany live; inne runtime’y/modele/regiony, proxy i pełna regresja starych cmdletów niekwalifikowane. TLS/Azure rzeczywistego cmdletu potwierdzone w S4 przez dot-source. Brak nowej autoryzacji na provider calls.
 

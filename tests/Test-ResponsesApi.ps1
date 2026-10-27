@@ -1,9 +1,10 @@
 [CmdletBinding()]
-param([switch]$SelfTest)
+param([switch]$SelfTest, [switch]$SkipLoopback)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $script:passed = 0
 $script:failed = 0
+$script:skipped = 0
 function Assert-Equal($Actual, $Expected) {
     if ($Actual -cne $Expected) { throw "Expected '$Expected'; actual '$Actual'" }
 }
@@ -245,7 +246,23 @@ if ($SelfTest) {
     }
     # Restore the real synchronous transport after caller-boundary unit tests.
     . "$root/Private/Invoke-PSAOAIResponseRequest.ps1"
-    $psi=[System.Diagnostics.ProcessStartInfo]::new('python3')
+    $pythonPath = $null
+    if (-not $SkipLoopback) {
+        foreach ($name in @('python3', 'python')) {
+            $command = Get-Command $name -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($command) {
+                try {
+                    & $command.Source -c 'import sys; sys.exit(0 if sys.version_info.major == 3 else 1)' 2>$null
+                    if ($LASTEXITCODE -eq 0) { $pythonPath = $command.Source; break }
+                } catch { }
+            }
+        }
+    }
+    if (-not $pythonPath) {
+        $script:skipped += 11
+        Write-Host 'SKIP 11 loopback tests: Python 3 unavailable or -SkipLoopback selected; real HTTP transport is not qualified by this run.'
+    } else {
+    $psi=[System.Diagnostics.ProcessStartInfo]::new($pythonPath)
     $psi.ArgumentList.Add("$PSScriptRoot/response_http_fixture.py")
     $psi.RedirectStandardOutput=$true
     $psi.RedirectStandardError=$true
@@ -295,11 +312,12 @@ if ($SelfTest) {
         if (-not $server.HasExited) { $server.Kill($true); $server.WaitForExit() }
         $server.Dispose()
     }
+    } # optional Python loopback group
     Test-Case 'isolated full import and legacy exports/URLs' {
         & pwsh -NoLogo -NoProfile -File "$PSScriptRoot/Test-ResponsesImport.ps1"
         Assert-Equal $LASTEXITCODE 0
     }
 }
-Write-Host "RESULT passed=$script:passed failed=$script:failed"
+Write-Host "RESULT passed=$script:passed failed=$script:failed skipped=$script:skipped"
 if ($script:failed -gt 0) { exit 1 }
 exit 0

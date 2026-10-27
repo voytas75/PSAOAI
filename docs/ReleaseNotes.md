@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.7.0] - local release candidate (unpublished)
+## [0.7.0]
 
 ### Added
 
@@ -14,7 +14,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Qualification
 
-- Offline tested on PowerShell 7.6.8 / WSL: runner self-test 2/0, full suite 49/0, isolated import with eight exports and four legacy URLs. Final validation made no provider calls or installations; CI remains unchanged. Manifest and runtime version are 0.7.0; this local release candidate is unpublished.
+- Offline tested on PowerShell 7.6.8 / WSL: runner self-test 2/0, full suite 49/0, isolated import with eight exports and four legacy URLs. Final validation made no provider calls or installations; CI remains unchanged. Manifest and runtime version are 0.7.0; this release is unpublished.
 - Separately approved live acceptance of the actual dot-sourced cmdlet verified configuration lookup, API-key authentication, HTTPS transport and parser on `gpt-6.1-sol`: output budget 512, `completed`, text `OK`, tokens 11 input / 5 output / 16 total, `store=false`. Ordinary module bootstrap, other models/regions/runtimes and full regression of older commands remain unqualified. Existing bootstrap and older transports are unchanged.
 
 ### Fixed

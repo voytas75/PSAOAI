@@ -5,7 +5,7 @@
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/PSAOAI)](https://www.powershellgallery.com/packages/PSAOAI)
 [![PowerShell Gallery Downloads](https://img.shields.io/powershellgallery/dt/PSAOAI)](https://www.powershellgallery.com/packages/PSAOAI)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/b299e2b2499942589ee6fe26c972fbb9)](https://app.codacy.com/gh/voytas75/PSAOAI/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
-[![Module Version 0.7.0 candidate](https://img.shields.io/badge/module-0.7.0_candidate-orange.svg)](https://github.com/voytas75/PSAOAI/blob/master/docs/ReleaseNotes.md)
+[![Module Version 0.7.0](https://img.shields.io/badge/module-0.7.0-blue.svg)](https://github.com/voytas75/PSAOAI/blob/master/docs/ReleaseNotes.md)
 
 ![PSAOAI](https://github.com/voytas75/PSAOAI/blob/master/images/PSAOAI128.png?raw=true "PowerShell Azure OpenAI (PSAOAI) Module")
 
@@ -62,7 +62,7 @@ Set the environment values needed by your Azure OpenAI deployment:
   Invoke-PSAOAIChatCompletion -Deployment "your_deployment" -SimpleResponse -Stream $false
 ```
 
-## Responses API (0.7.0 local release candidate)
+## Responses API (0.7.0)
 
 `Invoke-PSAOAIResponse` is a separate synchronous text command; it does not change Chat Completions or translate results to `choices[]`. This source-tree addition is not yet a PowerShell Gallery release. Offline qualification was performed on PowerShell 7.6.8 (WSL); Windows PowerShell 5.1 and other runtimes are not qualified for this command.
 
@@ -85,7 +85,7 @@ pwsh -NoLogo -NoProfile -File ./tests/Test-ResponsesApi.ps1 -SelfTest
 pwsh -NoLogo -NoProfile -File ./tests/Test-ResponsesApi.ps1
 ```
 
-Python 3 is required for the loopback fixture; Pester is not required. Import verification uses a disposable module copy with a configuration-write stub plus actual exercised PSGallery/REST stubs in a child process. This proves the isolated import and legacy exports/URL builders, not that ordinary module import is side-effect-free. Separately, an approved live acceptance exercised the actual dot-sourced cmdlet, real configuration lookup, API-key authentication, HTTPS transport and parser on `gpt-6.1-sol`: budget 512, status `completed`, text `OK`, usage 11 input + 5 output = 16 total tokens, `store=false`. Ordinary module bootstrap was bypassed and is not live-qualified; other models/regions and runtimes remain unqualified. No further Azure calls are authorized. The 0.7.0 release candidate remains local and unpublished; CI is unchanged. The installation command above retrieves the published Gallery version, not this candidate. See [the source-tree execution plan](https://github.com/voytas75/PSAOAI/blob/master/docs/ResponsesApiPlan.md) (not included in the runtime package). Test commands above run from the source checkout; tests are not packaged.
+Python 3 is optional and used only for loopback HTTP tests, not for the module itself. The runner detects `python3` or `python` and verifies Python 3; if unavailable, it explicitly skips the 11 loopback tests and runs the remaining checks. Use `-SkipLoopback` to skip them deliberately. A run with skips does not qualify real HTTP transport. Pester is not required. Import verification uses a disposable module copy with a configuration-write stub plus actual exercised PSGallery/REST stubs in a child process. This proves the isolated import and legacy exports/URL builders, not that ordinary module import is side-effect-free. Separately, an approved live acceptance exercised the actual dot-sourced cmdlet, real configuration lookup, API-key authentication, HTTPS transport and parser on `gpt-6.1-sol`: budget 512, status `completed`, text `OK`, usage 11 input + 5 output = 16 total tokens, `store=false`. Ordinary module bootstrap was bypassed and is not live-qualified; other models/regions and runtimes remain unqualified. No further Azure calls are authorized. The 0.7.0 source release is ready for Gallery publication; Gallery publication remains pending; CI is unchanged. The installation command above retrieves the published Gallery version, not version 0.7.0. See [the source-tree execution plan](https://github.com/voytas75/PSAOAI/blob/master/docs/ResponsesApiPlan.md) (not included in the runtime package). Test commands above run from the source checkout; tests are not packaged.
 
 ## Supported scenarios
 
@@ -112,6 +112,28 @@ Python 3 is required for the loopback fixture; Pester is not required. Import ve
 - **PowerShell-native commands** that are easier to script and reuse than raw REST calls.
 
 ## Usage examples
+
+### Responses API (0.7.0)
+
+Return plain text using an explicit Azure deployment (not a pipeline input):
+
+```powershell
+$text = Invoke-PSAOAIResponse -Endpoint 'https://RESOURCE.openai.azure.com' `
+  -Deployment 'gpt-6.1-sol' -InputText 'Explain Azure Logic Apps briefly.' `
+  -Instructions 'Use plain text.' -MaxOutputTokens 512 -SimpleResponse
+$text
+```
+
+Omit `-SimpleResponse` to retain the full REST result, including status and token usage:
+
+```powershell
+$response = Invoke-PSAOAIResponse -Endpoint 'https://RESOURCE.openai.azure.com' `
+  -Deployment 'gpt-6.1-sol' -InputText 'Reply with exactly: OK' -MaxOutputTokens 512
+$response.status
+$response.usage
+```
+
+The deployment must exist in your Azure resource. Both examples use the existing `PSAOAI_API_AZURE_OPENAI_KEY` configuration and send `store=false`, `stream=false`, and `background=false`. See [Responses API](#responses-api-070) for configuration, errors and qualification limits.
 
 ### Chat completion
 
