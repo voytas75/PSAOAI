@@ -259,8 +259,8 @@ if ($SelfTest) {
         }
     }
     if (-not $pythonPath) {
-        $script:skipped += 11
-        Write-Host 'SKIP 11 loopback tests: Python 3 unavailable or -SkipLoopback selected; real HTTP transport is not qualified by this run.'
+        $script:skipped += 23
+        Write-Host 'SKIP 23 loopback tests: Python 3 unavailable or -SkipLoopback selected; real HTTP transport is not qualified by this run.'
     } else {
     $psi=[System.Diagnostics.ProcessStartInfo]::new($pythonPath)
     $psi.ArgumentList.Add("$PSScriptRoot/response_http_fixture.py")
@@ -298,9 +298,34 @@ if ($SelfTest) {
             Assert-Equal ($null -ne $record) $true
             Assert-Equal $record.FullyQualifiedErrorId.Split(',')[0] 'PSAOAI.Response.ProtocolError'
         }
+        # Exercise the public boundary with the real HTTP transport, not the
+        # suite's global Stop preference. Only URL/auth/parser instrumentation is synthetic.
+        foreach ($mode in @('401','400','timeout')) {
+            foreach ($action in @('Continue','Stop')) {
+                foreach ($simple in @($false,$true)) {
+                    Test-Case "public real $mode ErrorAction $action SimpleResponse=$simple" {
+                        $probe=& pwsh -NoLogo -NoProfile -File "$PSScriptRoot/Invoke-ResponseFailureProbe.ps1" -Base $base -Mode $mode -Action $action -Simple $simple.ToString()
+                        $r=($probe | Out-String) | ConvertFrom-Json
+                        Assert-Equal $r.ParserCalls 0
+                        Assert-Equal $r.Count 1
+                        Assert-Equal $r.OutputCount 0
+                        $expected=if ($mode -eq 'timeout') {'Timeout'} else {'HttpError'}
+                        Assert-Equal $r.Ids[0] "PSAOAI.Response.$expected"
+                        Assert-Equal $r.After ($action -eq 'Continue')
+                        Assert-Equal $r.Safe[0] $true
+                        foreach ($marker in @('synthetic-private-prompt','synthetic-key-only')) { Assert-Equal $r.Rendered.Contains($marker) $false }
+                        if ($mode -eq '401') {
+                            Assert-Equal $r.Messages[0].Contains('status 401') $true
+                            Assert-Equal $r.Messages[0].Contains('same Azure resource') $true
+                            Assert-Equal $r.Messages[0].Contains('local API-key authentication') $true
+                        }
+                    }
+                }
+            }
+        }
         Test-Case 'server confirms no redirect replay or automatic retries' {
             $stats=Invoke-RestMethod "$base/stats"
-            Assert-Equal $stats.Count 10
+            Assert-Equal $stats.Count 22
             Assert-Equal (@($stats | Where-Object path -eq '/redirect-target').Count) 0
             foreach ($entry in $stats) {
                 Assert-Equal $entry.method 'POST'

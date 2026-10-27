@@ -57,6 +57,12 @@ function Invoke-PSAOAIResponse {
             'PSAOAI.Response.ConfigurationError', 'InvalidOperation', $null))
     }
     $url = Get-PSAOAIResponseUrl -Endpoint $Endpoint
-    $result = Invoke-PSAOAIResponseRequest -Url $url -Headers @{'api-key'=$key} -BodyJSON ($body | ConvertTo-Json -Depth 20 -Compress) -TimeoutSec $TimeoutSec
+    try {
+        # Stop the nested statement error before a null result reaches the parser.
+        $result = Invoke-PSAOAIResponseRequest -Url $url -Headers @{'api-key'=$key} -BodyJSON ($body | ConvertTo-Json -Depth 20 -Compress) -TimeoutSec $TimeoutSec -ErrorAction Stop
+    } catch {
+        # Preserve the transport's fresh sanitized record and caller ErrorAction.
+        $PSCmdlet.ThrowTerminatingError($_)
+    }
     Get-PSAOAIResponseText -Response $result -FullResponse:(-not $SimpleResponse)
 }

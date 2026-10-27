@@ -172,6 +172,15 @@ S4 cmdletu oraz końcowy closeout offline zakończone; nie powtarzać akceptacji
 - Regresje: Responses 49/0/skipped=0 z realnym loopback, Env 9/0, import pięć przypadków po dziewięć eksportów/cztery URL-e, bez promptów/discovery/zapisów. Native Windows persistence i nowe live acceptance niekwalifikowane.
 - Manifest pozostaje 0.7.0 UTF-16LE BOM; FileList rozszerzony o Public/Initialize-PSAOAIConfiguration.ps1. Artefakty i bieżący receipt/hashes odświeżane w scratch, bez tests/env/planów. Commit/push nadal wymaga odrębnej zgody.
 
+## Narrow transport-error cascade repair (0.7.0, local)
+
+- Preflight: clean master `0997b91`; no CI changes, commits, push, installs, secrets or provider calls. Native Windows checkout not synchronized or modified.
+- Diagnosis: transport ThrowTerminatingError terminates its statement, not the enclosing public function under default Continue; null then reaches parser and adds ProtocolError. Global Stop and even an enclosing test try conceal this. Fresh-process Continue probe has no surrounding try; captures redirected records and PowerShell error history when statement termination bypasses pipeline output.
+- RED before production changes: Responses 53 passed / 8 failed / 0 skipped; six Continue cases called parser once, two Stop 401 cases lacked safe guidance. With finalized probe and only boundary reverted: 55/6/0. GREEN: 61/0/0, 22 loopback POSTs, no redirects/retries; 401/400/timeout × Continue/Stop × full/simple. One original sanitized HttpError/Timeout, no output, zero parser calls; null TargetObject/InnerException and no secret/prompt markers.
+- Minimal repair: nested transport -ErrorAction Stop inside try, public ThrowTerminatingError of its sanitized record. Default caller continues next statement; explicit Stop is catchable. 401 advice is conditional diagnosis: matching resource/key, current key, enabled local API-key authentication; no raw body or certain invalid-key assertion.
+- Regression: Env 9/0; Configuration 13/0; isolated Import five cases, nine exports/four legacy URLs. WSL only; no new cloud acceptance or native Windows tests (would require separately approved uncommitted synchronization).
+- Refresh allowlisted scratch stage/ZIP/inventory against current source bytes after documentation changes. Version remains 0.7.0; publication not performed.
+
 ## Źródła kontraktu
 
 - https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/responses

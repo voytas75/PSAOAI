@@ -27,6 +27,9 @@ function Invoke-PSAOAIResponseRequest {
         if (-not $response.IsSuccessStatusCode) {
             $failure = 'HttpError'
             $message = "Responses HTTP request failed (status $([int]$response.StatusCode))."
+            if ([int]$response.StatusCode -eq 401) {
+                $message += ' Authentication was not accepted. Verify locally that the endpoint and API key belong to the same Azure resource, that the key is current, and that local API-key authentication is enabled for that resource. Do not share the key or raw response body.'
+            }
         } else {
             $bytes = $response.Content.ReadAsByteArrayAsync($cancel.Token).GetAwaiter().GetResult()
             try {
