@@ -63,6 +63,23 @@ Set the environment values needed by your Azure OpenAI deployment:
 - `PSAOAI_API_AZURE_OPENAI_CC_DEPLOYMENT`
 - `PSAOAI_API_AZURE_OPENAI_KEY`
 
+For Responses first use (source version 0.7.0), run explicitly:
+
+```powershell
+Initialize-PSAOAIConfiguration
+Invoke-PSAOAIResponse -Deployment 'DEPLOYMENT-NAME' -InputText 'Hello' -SimpleResponse
+# Or opt into setup only when configuration is missing:
+Invoke-PSAOAIResponse -Interactive -Deployment 'DEPLOYMENT-NAME' -InputText 'Hello'
+```
+
+Setup asks for a missing HTTPS endpoint, validates it using the Responses URL helper **before** asking for a missing API key with `Read-Host -AsSecureString`. It returns secret-free status, makes no cloud call, and writes only Process environment values after validation. No key argument, User/Machine persistence or encrypted-storage claim: the transport requires plaintext in process memory/environment. Closing the shell removes this configuration; remove the two Process variables to undo it earlier. Existing effective configuration uses the unchanged Process → User → Machine lookup. `-Endpoint` can supply a nonsecret endpoint. Cancelled/invalid setup sends no request. Mandatory `Deployment`/`InputText` PowerShell prompts remain independent of configuration setup. Import remains noninteractive; PSGallery/TLS bootstrap remains unchanged. API version and legacy deployment setup are not provided by this initializer.
+
+Offline configuration checks use mocked hidden input and monitored synthetic stores; native Windows persistence is not qualified:
+
+```powershell
+pwsh -NoLogo -NoProfile -File ./tests/Test-PSAOAIConfiguration.ps1
+```
+
 ### 4. Run a simple chat completion
 
 ```powershell
@@ -80,7 +97,7 @@ Invoke-PSAOAIResponse -Endpoint 'https://RESOURCE.openai.azure.com' `
   -Instructions 'Use plain text.' -MaxOutputTokens 512 -SimpleResponse
 ```
 
-Use the existing `PSAOAI_API_AZURE_OPENAI_KEY` configuration. Endpoint can fall back to `PSAOAI_API_AZURE_OPENAI_ENDPOINT`; an explicit endpoint takes precedence. Deployment is always explicit and maps to JSON `model`. Only HTTPS resource roots or `/openai/v1` bases are accepted; the URL is `/openai/v1/responses` without a dated API version. Missing configuration fails without a prompt or persistent write. Import no longer discovers or writes the dated API version and never prompts for it; existing configured values are preserved. Older commands still provide their intentional interactive setup when configuration is absent. The existing PSGallery update check and process TLS setup remain unchanged.
+Use the existing `PSAOAI_API_AZURE_OPENAI_KEY` configuration. Endpoint can fall back to `PSAOAI_API_AZURE_OPENAI_ENDPOINT`; an explicit endpoint takes precedence. Deployment is always explicit and maps to JSON `model`. Only HTTPS resource roots or `/openai/v1` bases are accepted; the URL is `/openai/v1/responses` without a dated API version. Default Responses mode reports the specifically missing variable names and directs you to `Initialize-PSAOAIConfiguration`; it performs no setup prompts or writes. Import no longer discovers or writes the dated API version and never prompts for it; existing configured values are preserved. Older commands still provide their intentional interactive setup when configuration is absent. The existing PSGallery update check and process TLS setup remain unchanged.
 
 The default result is the full REST object, including unknown fields, `usage`, `output` and `incomplete_details`. `-SimpleResponse` concatenates all `output_text` blocks in order without a separator. Refusals produce a warning in full mode and a terminating `PSAOAI.Response.Refused` in text mode. Incomplete results warn; text mode returns available partial text, otherwise `PSAOAI.Response.NoText`. Failed/error-bearing results terminate with `PSAOAI.Response.Failed`; malformed results use `PSAOAI.Response.ProtocolError`. HTTP failures and timeouts use `PSAOAI.Response.HttpError` and `PSAOAI.Response.Timeout` with sanitized diagnostics.
 

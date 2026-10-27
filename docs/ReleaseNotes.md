@@ -8,13 +8,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Added
 
+- Explicit `Initialize-PSAOAIConfiguration` with validated endpoint and hidden API-key input, Process-only writes and secret-free status; opt-in Responses `-Interactive`. Default mode names missing configuration and directs setup without prompting. Mandatory Deployment/InputText behavior is preserved. Synthetic offline setup regression coverage; no native Windows persistence qualification.
 - Separate `Invoke-PSAOAIResponse` text-only synchronous Azure Responses v1 MVP with explicit non-storing/non-streaming/non-background requests, full REST results and optional concatenated text.
 - Dedicated UTF-8 JSON transport without jobs, retries, redirects or payload logging; sanitized terminating errors and explicit refusal/incomplete handling.
 - Dependency-free offline PowerShell contract runner, real Python loopback HTTP scenarios, and isolated module-import/legacy export and URL checks.
 
 ### Qualification
 
-- Offline tested on PowerShell 7.6.8 / WSL: runner self-test 2/0, full suite 49/0, isolated import with eight exports and four legacy URLs. Final validation made no provider calls or installations; CI remains unchanged. Manifest and runtime version are 0.7.0; this release is unpublished.
+- Offline tested on PowerShell 7.6.8 / WSL: runner self-test 2/0, full suite 49/0, isolated import with nine exports and four legacy URLs. Final validation made no provider calls or installations; CI remains unchanged. Manifest and runtime version are 0.7.0; this release is unpublished.
 - Separately approved live acceptance of the actual dot-sourced cmdlet verified configuration lookup, API-key authentication, HTTPS transport and parser on `gpt-6.1-sol`: output budget 512, `completed`, text `OK`, tokens 11 input / 5 output / 16 total, `store=false`. Ordinary module bootstrap, other models/regions/runtimes and full regression of older commands remain unqualified. The subsequent bounded import UX fix changes API-version setup and banner presentation only; PSGallery/TLS bootstrap and older transports remain unchanged.
 
 ### Fixed

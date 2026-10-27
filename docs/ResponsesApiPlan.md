@@ -164,6 +164,14 @@ S4 cmdletu oraz końcowy closeout offline zakończone; nie powtarzać akceptacji
 - Weryfikacja końcowa: Responses 49/0/skipped=0, Env 9/0, SelfTest 2/0; parser PowerShell 42 pliki, Test-ModuleManifest 0.7.0 i FileList 47. Odświeżono allowlist stage/ZIP/inventory/SHA256 w scratch: 47 plików, zgodne bajtowo ze źródłem, bez tests/tools/env/planów. Import niezmodyfikowanej paczki z samą atrapą PSGallery: notka włączona/wyłączona, osiem eksportów, wersja API zachowana. SHA paczki zapisany obok artefaktu, nie duplikowany w planie.
 - Historyczne checkpointy S0/S1 zachowują opis ówczesnych atrap; powyższy checkpoint określa aktualną metodę. PSGallery, TLS, auth, proxy, Clear-PSAOAIEnv, CI i inne polecenia bez zmian. Brak nowych provider calls, sekretów, instalacji i publikacji. Zwykły sieciowy import oraz rzeczywiste User persistence na Windows nadal niekwalifikowane.
 
+## Explicit first-use configuration (0.7.0, lokalny niecommitowany slice)
+
+- Zatwierdzony zakres: nowy eksport Initialize-PSAOAIConfiguration, Responses -Interactive jako opt-in, Process-only bez trwałych zapisów User/Machine. Import pozostaje noninteractive; CI, transport, auth lookup, polityki, instalacje, cloud calls, commit/push/publikacja poza zakresem.
+- Domyślne Responses podaje konkretnie brakujące nazwy endpoint/key i kieruje do initializera. Mandatory Deployment/InputText nadal obsługuje PowerShell. Initializer pyta o brakujące wartości, waliduje endpoint istniejącym URL helperem przed Read-Host -AsSecureString, zapisuje dopiero po walidacji obu wartości i zwraca status bez sekretu. Klucz w Process env jest plaintext niezbędnym transportowi, nie „zaszyfrowaną konfiguracją”.
+- Rzeczywisty RED konfiguracji: passed=2 failed=11 exit 1 (brak initializera/-Interactive i błędów missing-specific). Po korekcie seam wywołania zapisu i ValidateNotNullOrEmpty blokującego przypisanie null podczas lookup: GREEN 13/0. Anulowanie/pusty klucz/niepoprawny endpoint sprawdzają brak transportu i zapisów; syntetyczny Unicode key przechodzi realny lookup -Secure. Testy nie odczytują prawdziwych sekretów ani User/Machine.
+- Regresje: Responses 49/0/skipped=0 z realnym loopback, Env 9/0, import pięć przypadków po dziewięć eksportów/cztery URL-e, bez promptów/discovery/zapisów. Native Windows persistence i nowe live acceptance niekwalifikowane.
+- Manifest pozostaje 0.7.0 UTF-16LE BOM; FileList rozszerzony o Public/Initialize-PSAOAIConfiguration.ps1. Artefakty i bieżący receipt/hashes odświeżane w scratch, bez tests/env/planów. Commit/push nadal wymaga odrębnej zgody.
+
 ## Źródła kontraktu
 
 - https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/responses

@@ -10,6 +10,9 @@ try {
     $setter=Get-Content "$temp/Private/Set-EnvironmentVariable.ps1" -Raw
     $setter=$setter.Replace('[System.Environment]::SetEnvironmentVariable(', 'Assert-NoEnvironmentWrite(')
     Set-Content "$temp/Private/Set-EnvironmentVariable.ps1" $setter
+    $initializer=Get-Content "$temp/Public/Initialize-PSAOAIConfiguration.ps1" -Raw
+    $initializer=$initializer.Replace('[System.Environment]::SetEnvironmentVariable(', 'Assert-NoEnvironmentWrite(')
+    Set-Content "$temp/Public/Initialize-PSAOAIConfiguration.ps1" $initializer
     function global:Assert-NoEnvironmentWrite { $global:writeCalls++; throw 'Unexpected environment write' }
     function global:Set-Item { $global:writeCalls++; throw 'Unexpected Set-Item during import' }
     function global:Read-Host { $global:promptCalls++; throw 'Unexpected interactive prompt during import' }
@@ -22,7 +25,7 @@ try {
     $getter=Get-Content "$temp/Private/Get-EnvironmentVariable.ps1" -Raw
     $getter=$getter.Replace('[System.Environment]::GetEnvironmentVariable($VariableName, "User")', '$global:syntheticUser[$VariableName]')
     Set-Content "$temp/Private/Get-EnvironmentVariable.ps1" $getter
-    $expected=@('Invoke-PSAOAIChatCompletion','Invoke-PSAOAICompletion','Invoke-PSAOAIDalle3','Invoke-PSAOAIEmbedding','Get-APIVersion','Clear-PSAOAIEnv','Get-PSAOAIEnv','Invoke-PSAOAIResponse') | Sort-Object
+    $expected=@('Invoke-PSAOAIChatCompletion','Invoke-PSAOAICompletion','Invoke-PSAOAIDalle3','Invoke-PSAOAIEmbedding','Get-APIVersion','Clear-PSAOAIEnv','Get-PSAOAIEnv','Invoke-PSAOAIResponse','Initialize-PSAOAIConfiguration') | Sort-Object
     $cases=@(
         @{Name='absent'; Process=$null; User=$null; API=$null; Show=$true},
         @{Name='enabled'; Process='1'; User=$null; API='2024-synthetic'; Show=$true},
@@ -54,7 +57,7 @@ try {
             if ($url -cne "https://synthetic.test/openai/deployments/model%20%2Fx/$suffix`?api-version=2024-test") { throw 'Legacy URL changed' }
         }
         Remove-Module PSAOAI
-        Write-Host "PASS import $($case.Name): eight exports; four URLs; no prompt, discovery or writes"
+        Write-Host "PASS import $($case.Name): nine exports; four URLs; no prompt, discovery or writes"
     }
     Write-Host 'PASS isolated import: five cases; real import/setter/discovery; User read seam only; PSGallery stub'
 } finally {
