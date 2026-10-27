@@ -57,16 +57,21 @@ $script:API_AZURE_OPENAI_E_DEPLOYMENT = "PSAOAI_API_AZURE_OPENAI_E_DEPLOYMENT" #
 $script:API_AZURE_OPENAI_KEY = "PSAOAI_API_AZURE_OPENAI_KEY"
 $script:PSAOAI_BANNER = "PSAOAI_BANNER"
 
-# Setting the environment variable for the API version
-Set-EnvironmentVariable -VariableName $script:API_AZURE_OPENAI_APIVERSION -VariableValue $(get-apiversion -preview | select-object -first 1) -PromptMessage "API Version"
+# Import reads existing configuration only. Do not discover/force a dated API
+# version or run interactive persistent setup here. Legacy commands retain their
+# explicit API-version parameters and interactive setup when configuration is absent.
+$script:ConfiguredAPIVersion = Get-EnvironmentVariable -VariableName $script:API_AZURE_OPENAI_APIVERSION
 #write-host (Get-EnvironmentVariable -VariableName $script:API_AZURE_OPENAI_APIVERSION )
 #Set-EnvironmentVariable -VariableName "PSAOAI_BANNER" -VariableValue "1"
-if ( [string]::IsNullOrEmpty((Get-EnvironmentVariable -VariableName $script:PSAOAI_BANNER))) {
+if ((Get-EnvironmentVariable -VariableName $script:PSAOAI_BANNER) -ne '0') {
     Get-PSAOAIBanner
 
     # Greet the user upon module initiation
     Write-Host "Welcome to $script:ModuleNameFull ($script:ModuleName)!" -ForegroundColor Cyan
     Write-Host "Thank you for using $script:ModuleNameFull ($($moduleVersion))" -ForegroundColor DarkGreen
+    # Manifest owns the concise current-release note; never print changelog history.
+    $releaseData = Import-PowerShellDataFile -Path "$PSScriptRoot/PSAOAI.psd1"
+    Write-Host $releaseData.PrivateData.PSData.ReleaseNotes -ForegroundColor Cyan
     write-Host ""
     write-Host "To disable the banner and welcome follow:" -ForegroundColor DarkGray
     write-Host '[System.Environment]::SetEnvironmentVariable("PSAOAI_BANNER", "0", "User")' -ForegroundColor DarkGray

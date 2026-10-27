@@ -40,6 +40,14 @@ Install-Module -Name PSAOAI
 Import-Module -Name PSAOAI
 ```
 
+Import displays the concise current-version change note from the manifest, never historical changelog entries. To hide it together with the banner/welcome, persist the established User setting:
+
+```powershell
+[System.Environment]::SetEnvironmentVariable("PSAOAI_BANNER", "0", "User")
+```
+
+Effective lookup is Process → User → Machine; a Process value takes precedence (set `$env:PSAOAI_BANNER = '0'` for the current shell if needed). Values other than `0`, including `1`, enable the banner and note.
+
 ### 2. See what the module exports
 
 ```powershell
@@ -72,7 +80,7 @@ Invoke-PSAOAIResponse -Endpoint 'https://RESOURCE.openai.azure.com' `
   -Instructions 'Use plain text.' -MaxOutputTokens 512 -SimpleResponse
 ```
 
-Use the existing `PSAOAI_API_AZURE_OPENAI_KEY` configuration. Endpoint can fall back to `PSAOAI_API_AZURE_OPENAI_ENDPOINT`; an explicit endpoint takes precedence. Deployment is always explicit and maps to JSON `model`. Only HTTPS resource roots or `/openai/v1` bases are accepted; the URL is `/openai/v1/responses` without a dated API version. Missing configuration fails without a prompt or persistent write. Import itself retains the module's existing update check/configuration bootstrap effects.
+Use the existing `PSAOAI_API_AZURE_OPENAI_KEY` configuration. Endpoint can fall back to `PSAOAI_API_AZURE_OPENAI_ENDPOINT`; an explicit endpoint takes precedence. Deployment is always explicit and maps to JSON `model`. Only HTTPS resource roots or `/openai/v1` bases are accepted; the URL is `/openai/v1/responses` without a dated API version. Missing configuration fails without a prompt or persistent write. Import no longer discovers or writes the dated API version and never prompts for it; existing configured values are preserved. Older commands still provide their intentional interactive setup when configuration is absent. The existing PSGallery update check and process TLS setup remain unchanged.
 
 The default result is the full REST object, including unknown fields, `usage`, `output` and `incomplete_details`. `-SimpleResponse` concatenates all `output_text` blocks in order without a separator. Refusals produce a warning in full mode and a terminating `PSAOAI.Response.Refused` in text mode. Incomplete results warn; text mode returns available partial text, otherwise `PSAOAI.Response.NoText`. Failed/error-bearing results terminate with `PSAOAI.Response.Failed`; malformed results use `PSAOAI.Response.ProtocolError`. HTTP failures and timeouts use `PSAOAI.Response.HttpError` and `PSAOAI.Response.Timeout` with sanitized diagnostics.
 
@@ -85,7 +93,7 @@ pwsh -NoLogo -NoProfile -File ./tests/Test-ResponsesApi.ps1 -SelfTest
 pwsh -NoLogo -NoProfile -File ./tests/Test-ResponsesApi.ps1
 ```
 
-Python 3 is optional and used only for loopback HTTP tests, not for the module itself. The runner detects `python3` or `python` and verifies Python 3; if unavailable, it explicitly skips the 11 loopback tests and runs the remaining checks. Use `-SkipLoopback` to skip them deliberately. A run with skips does not qualify real HTTP transport. Pester is not required. Import verification uses a disposable module copy with a configuration-write stub plus actual exercised PSGallery/REST stubs in a child process. This proves the isolated import and legacy exports/URL builders, not that ordinary module import is side-effect-free. Separately, an approved live acceptance exercised the actual dot-sourced cmdlet, real configuration lookup, API-key authentication, HTTPS transport and parser on `gpt-6.1-sol`: budget 512, status `completed`, text `OK`, usage 11 input + 5 output = 16 total tokens, `store=false`. Ordinary module bootstrap was bypassed and is not live-qualified; other models/regions and runtimes remain unqualified. No further Azure calls are authorized. The 0.7.0 source release is ready for Gallery publication; Gallery publication remains pending; CI is unchanged. The installation command above retrieves the published Gallery version, not version 0.7.0. See [the source-tree execution plan](https://github.com/voytas75/PSAOAI/blob/master/docs/ResponsesApiPlan.md) (not included in the runtime package). Test commands above run from the source checkout; tests are not packaged.
+Python 3 is optional and used only for loopback HTTP tests, not for the module itself. The runner detects `python3` or `python` and verifies Python 3; if unavailable, it explicitly skips the 11 loopback tests and runs the remaining checks. Use `-SkipLoopback` to skip them deliberately. A run with skips does not qualify real HTTP transport. Pester is not required. Import verification uses a disposable module copy with the real setter and discovery code, fail-fast write/prompt/network guards, a PSGallery stub and a synthetic User-read boundary. Five cases verify absent/enabled/suppressed banners, Process precedence, preserved API configuration and no discovery or writes. This proves the isolated import and legacy exports/URL builders, not that ordinary module import is side-effect-free. Separately, an approved live acceptance exercised the actual dot-sourced cmdlet, real configuration lookup, API-key authentication, HTTPS transport and parser on `gpt-6.1-sol`: budget 512, status `completed`, text `OK`, usage 11 input + 5 output = 16 total tokens, `store=false`. Ordinary module bootstrap was bypassed and is not live-qualified; other models/regions and runtimes remain unqualified. No further Azure calls are authorized. The 0.7.0 source release is ready for Gallery publication; Gallery publication remains pending; CI is unchanged. The installation command above retrieves the published Gallery version, not version 0.7.0. See [the source-tree execution plan](https://github.com/voytas75/PSAOAI/blob/master/docs/ResponsesApiPlan.md) (not included in the runtime package). Test commands above run from the source checkout; tests are not packaged.
 
 ## Environment inventory (local 0.7.0 additive fix)
 

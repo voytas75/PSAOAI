@@ -156,6 +156,14 @@ S4 cmdletu oraz końcowy closeout offline zakończone; nie powtarzać akceptacji
 - Rzeczywisty TDD: `pwsh -NoLogo -NoProfile -File ./tests/Test-PSAOAIEnv.ps1` RED passed=0 failed=9 → GREEN passed=9 failed=0. Syntetyczne Process, mock seam User/Machine; bez odczytów realnych sekretów i trwałych zmian. Pełny Responses runner ponownie 49/0, skipped=0, z izolowanym importem.
 - Przejrzano, nie zmieniono: Get-EnvironmentVariable stosuje Process→User→Machine i fallback Env; Clear-PSAOAIEnv usuwa stałą listę tylko w User. CI/auth/transport/bootstrap bez zmian; brak provider calls, instalacji, commit/push/tag/publikacji. Wersja nadal lokalna 0.7.0.
 
+## Bounded import UX fix (0.7.0, lokalny)
+
+- Przyczyna: import wywoływał Set-EnvironmentVariable z wynikiem sieciowego Get-APIVersion. Pusty wynik uruchamiał Read-Host; wynik niepusty nadpisywał Process/User. Import teraz tylko odczytuje istniejącą wersję, bez discovery, promptu i zapisu. Brak wersji pozostaje brakiem konfiguracji; interaktywny setup starszych poleceń nie został usunięty.
+- Manifest PrivateData.PSData.ReleaseNotes jest jedynym źródłem krótkiej notki bieżącej wersji. Banner/notka wyłączone dla skutecznego PSAOAI_BANNER=0; lookup Process→User→Machine zachowany, wartość 1 włącza notkę. Dokumentacja zachowuje konwencję ustawienia User.
+- Aktualny test importu zastępuje wcześniejszą atrapę settera: rzeczywisty kod w kopii modułu, strażniki Read-Host/zapisu/sieci, atrapa PSGallery i wyłącznie syntetyczny odczyt User. RED exit 1: Unexpected interactive prompt during import. GREEN: pięć przypadków, osiem eksportów i cztery stare URL-e w każdym; zero promptów, discovery i zapisów, zachowana konfiguracja, brak historycznych notek.
+- Weryfikacja końcowa: Responses 49/0/skipped=0, Env 9/0, SelfTest 2/0; parser PowerShell 42 pliki, Test-ModuleManifest 0.7.0 i FileList 47. Odświeżono allowlist stage/ZIP/inventory/SHA256 w scratch: 47 plików, zgodne bajtowo ze źródłem, bez tests/tools/env/planów. Import niezmodyfikowanej paczki z samą atrapą PSGallery: notka włączona/wyłączona, osiem eksportów, wersja API zachowana. SHA paczki zapisany obok artefaktu, nie duplikowany w planie.
+- Historyczne checkpointy S0/S1 zachowują opis ówczesnych atrap; powyższy checkpoint określa aktualną metodę. PSGallery, TLS, auth, proxy, Clear-PSAOAIEnv, CI i inne polecenia bez zmian. Brak nowych provider calls, sekretów, instalacji i publikacji. Zwykły sieciowy import oraz rzeczywiste User persistence na Windows nadal niekwalifikowane.
+
 ## Źródła kontraktu
 
 - https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/responses
