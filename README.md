@@ -87,6 +87,18 @@ pwsh -NoLogo -NoProfile -File ./tests/Test-ResponsesApi.ps1
 
 Python 3 is optional and used only for loopback HTTP tests, not for the module itself. The runner detects `python3` or `python` and verifies Python 3; if unavailable, it explicitly skips the 11 loopback tests and runs the remaining checks. Use `-SkipLoopback` to skip them deliberately. A run with skips does not qualify real HTTP transport. Pester is not required. Import verification uses a disposable module copy with a configuration-write stub plus actual exercised PSGallery/REST stubs in a child process. This proves the isolated import and legacy exports/URL builders, not that ordinary module import is side-effect-free. Separately, an approved live acceptance exercised the actual dot-sourced cmdlet, real configuration lookup, API-key authentication, HTTPS transport and parser on `gpt-6.1-sol`: budget 512, status `completed`, text `OK`, usage 11 input + 5 output = 16 total tokens, `store=false`. Ordinary module bootstrap was bypassed and is not live-qualified; other models/regions and runtimes remain unqualified. No further Azure calls are authorized. The 0.7.0 source release is ready for Gallery publication; Gallery publication remains pending; CI is unchanged. The installation command above retrieves the published Gallery version, not version 0.7.0. See [the source-tree execution plan](https://github.com/voytas75/PSAOAI/blob/master/docs/ResponsesApiPlan.md) (not included in the runtime package). Test commands above run from the source checkout; tests are not packaged.
 
+## Environment inventory (local 0.7.0 additive fix)
+
+```powershell
+Get-PSAOAIEnv                 # separate Process, User and Machine rows
+Get-PSAOAIEnv -Scope Process  # or User / Machine
+pwsh -NoLogo -NoProfile -File ./tests/Test-PSAOAIEnv.ps1
+```
+
+Returns objects with `Name`, `Value`, `Scope` and compatibility `Info`. Duplicate names across scopes are preserved; this is an inventory, not effective precedence. All PSAOAI API-key values are shown only as `****`, including empty keys, without decoding or assuming encryption. No matching variables produces an informational message, not a data row. User/Machine inventories depend on OS support and may be empty on Unix. Tests use synthetic Process data and a mocked enumeration seam for User/Machine, with no persistent changes or real secret reads. This local fix remains unpublished.
+
+Configuration lookup remains Process → User → Machine (with existing fallback); `Clear-PSAOAIEnv` still clears its fixed User-scope variables only. Neither behavior is changed by the inventory fix.
+
 ## Supported scenarios
 
 - chat completions for scripted or interactive use

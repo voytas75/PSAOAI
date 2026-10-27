@@ -149,6 +149,13 @@ S4 cmdletu oraz końcowy closeout offline zakończone; nie powtarzać akceptacji
 - Transport używa synchronicznego HttpClient bez proxy, automatycznych poświadczeń, redirectów i retry; nie emituje request ID ani payloadów. Środowiska wymagające proxy pozostają niekwalifikowane.
 - Ograniczenia: bootstrap modułu niekwalifikowany live; inne runtime’y/modele/regiony, proxy i pełna regresja starych cmdletów niekwalifikowane. TLS/Azure rzeczywistego cmdletu potwierdzone w S4 przez dot-source. Brak nowej autoryzacji na provider calls.
 
+## Lokalny additive fix Get-PSAOAIEnv (0.7.0, niewydany)
+
+- Zatwierdzono i wdrożono wyłącznie inventory: opcjonalny ValidateSet Process/User/Machine; domyślnie wszystkie scope jako osobne obiekty Name/Value/Scope/Info, bez precedence i bez deduplikacji nazw.
+- Wszystkie wartości kluczy API maskowane w całości jako `****`, bez dekodowania/założenia szyfrowania. Brak zmiennych: komunikat information stream, zero data rows. Unix może nie mieć inventory User/Machine.
+- Rzeczywisty TDD: `pwsh -NoLogo -NoProfile -File ./tests/Test-PSAOAIEnv.ps1` RED passed=0 failed=9 → GREEN passed=9 failed=0. Syntetyczne Process, mock seam User/Machine; bez odczytów realnych sekretów i trwałych zmian. Pełny Responses runner ponownie 49/0, skipped=0, z izolowanym importem.
+- Przejrzano, nie zmieniono: Get-EnvironmentVariable stosuje Process→User→Machine i fallback Env; Clear-PSAOAIEnv usuwa stałą listę tylko w User. CI/auth/transport/bootstrap bez zmian; brak provider calls, instalacji, commit/push/tag/publikacji. Wersja nadal lokalna 0.7.0.
+
 ## Źródła kontraktu
 
 - https://learn.microsoft.com/en-us/azure/foundry/openai/how-to/responses

@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Fixed
 
+- Local, unpublished additive `Get-PSAOAIEnv` fix: optional validated Process/User/Machine scope; all three scopes by default with duplicate names preserved as separate Name/Value/Scope/Info objects. API keys are fully masked as `****` without encryption assumptions; empty inventory emits information only. Synthetic scope regression runner: RED 0/9, GREEN 9/0; existing Responses suite 49/0 (no skips). Configuration lookup and Clear behavior remain unchanged.
 - Responses transport rejects a singleton JSON array root rather than accidentally accepting its enumerated object; covered by a real loopback RED/GREEN regression.
 
 ## [0.6.5] - 2026.03.27

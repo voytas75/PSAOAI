@@ -1,48 +1,55 @@
+# Internal enumeration seam: keeps scope inventory distinct from effective lookup.
+function Get-PSAOAIEnvironmentVariables {
+    param([System.EnvironmentVariableTarget]$Scope)
+    [Environment]::GetEnvironmentVariables($Scope)
+}
+
 <#
 .SYNOPSIS
-This function retrieves all user environment variables that start with "PSAOAI".
-
+Lists PSAOAI environment variables by storage scope.
 .DESCRIPTION
-The Get-PSAOAIEnv function uses the .NET Environment class to get all user environment variables. 
-It then filters these variables to only include those that start with "PSAOAI". 
-The resulting list of variables is then formatted for display, with sensitive keys partially masked.
-
+Returns separate rows from Process, User and Machine by default, preserving
+names present in multiple scopes rather than applying effective precedence.
+API key values are fully masked without decoding or assuming encryption.
+.PARAMETER Scope
+Optional single scope: Process, User or Machine. Omit to list all three.
 .OUTPUTS
-System.Collections.DictionaryEntry. Outputs a list of user environment variables that start with "PSAOAI".
-
+System.Management.Automation.PSCustomObject. Name, Value, Scope and Info.
+.EXAMPLE
+Get-PSAOAIEnv
+.EXAMPLE
+Get-PSAOAIEnv -Scope Process
 .NOTES
-    Author: Wojciech Napierala
-    Date: 2024-04
+User and Machine inventories depend on platform support; on Unix they may be empty.
 #>
 function Get-PSAOAIEnv {
-    param ()
+    [CmdletBinding()]
+    param(
+        [ValidateSet('Process', 'User', 'Machine')]
+        [string]$Scope
+    )
 
-    # Retrieve and filter environment variables starting with "PSAOAI"
-    $envVars = ([Environment]::GetEnvironmentVariables("user")).GetEnumerator() | 
-        Where-Object { $_.Key -like "PSAOAI*" }
-
-    foreach ($envVar in $envVars) {
-        if ($envVar.Key -eq 'PSAOAI_API_AZURE_OPENAI_KEY') {
-            # Partially mask the API key for security
-            # Note: PSAOAI_API_AZURE_OPENAI_KEY is an encoded version of the real API key
-            $keyValue = $envVar.Value
-            $maskedValue = if ($keyValue.Length -gt 8) {
-                $keyValue.Substring(0, 4) + "****" + $keyValue.Substring($keyValue.Length - 4, 4)
-            } else {
-                '****'
-            }
-    
-            [PSCustomObject]@{
-                Name  = $envVar.Key
-                Value = $maskedValue
-                Info  = 'Encoded version of the real API key'
-            }
-        } else {
-            [PSCustomObject]@{
-                Name  = $envVar.Key
-                Value = $envVar.Value
-                Info  = 'N/A'
+    $scopes = if ($PSBoundParameters.ContainsKey('Scope')) {
+        @(([System.EnvironmentVariableTarget]$Scope).ToString())
+    } else {
+        @('Process', 'User', 'Machine')
+    }
+    $found = $false
+    foreach ($target in $scopes) {
+        $variables = Get-PSAOAIEnvironmentVariables -Scope $target
+        foreach ($variable in ($variables.GetEnumerator() | Sort-Object Key)) {
+            if ($variable.Key -notlike 'PSAOAI*') { continue }
+            $found = $true
+            $isApiKey = $variable.Key -match 'API.*KEY'
+            [pscustomobject]@{
+                Name = $variable.Key
+                Value = if ($isApiKey) { '****' } else { $variable.Value }
+                Scope = $target
+                Info = if ($isApiKey) { 'API key value masked' } else { 'N/A' }
             }
         }
+    }
+    if (-not $found) {
+        Write-Information "No PSAOAI environment variables found in scope(s): $($scopes -join ', ')." -InformationAction Continue
     }
 }
