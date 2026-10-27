@@ -36,9 +36,11 @@ PSAOAI is not the best fit for:
 ### 1. Install the module
 
 ```powershell
-Install-Module -Name PSAOAI
-Import-Module -Name PSAOAI
+Install-Module -Name PSAOAI -RequiredVersion 0.7.0
+Import-Module -Name PSAOAI -RequiredVersion 0.7.0
 ```
+
+Version 0.7.0 is [published on PowerShell Gallery](https://www.powershellgallery.com/packages/PSAOAI/0.7.0), verified live by the user/parent agent after user-owned publication. The commands above select that exact version; they are installation instructions, not a claim that the downloaded Gallery package was installed or tested in this closeout.
 
 Import displays the concise current-version change note from the manifest, never historical changelog entries. To hide it together with the banner/welcome, persist the established User setting:
 
@@ -63,7 +65,7 @@ Set the environment values needed by your Azure OpenAI deployment:
 - `PSAOAI_API_AZURE_OPENAI_CC_DEPLOYMENT`
 - `PSAOAI_API_AZURE_OPENAI_KEY`
 
-For Responses first use (source version 0.7.0), run explicitly:
+For Responses first use (version 0.7.0), run explicitly:
 
 ```powershell
 Initialize-PSAOAIConfiguration
@@ -89,7 +91,7 @@ pwsh -NoLogo -NoProfile -File ./tests/Test-PSAOAIConfiguration.ps1
 
 ## Responses API (0.7.0)
 
-`Invoke-PSAOAIResponse` is a separate synchronous text command; it does not change Chat Completions or translate results to `choices[]`. This source-tree addition is not yet a PowerShell Gallery release. Offline qualification was performed on PowerShell 7.6.8 (WSL); Windows PowerShell 5.1 and other runtimes are not qualified for this command.
+`Invoke-PSAOAIResponse` is a separate synchronous text command; it does not change Chat Completions or translate results to `choices[]`. Version 0.7.0 is published on PowerShell Gallery. Offline qualification was performed on PowerShell 7.6.8 (WSL); later native Windows acceptance of the actual installed source is recorded below. Windows PowerShell 5.1 and other untested runtimes are not qualified for this command.
 
 ```powershell
 Invoke-PSAOAIResponse -Endpoint 'https://RESOURCE.openai.azure.com' `
@@ -101,7 +103,7 @@ Use the existing `PSAOAI_API_AZURE_OPENAI_KEY` configuration. Endpoint can fall 
 
 The default result is the full REST object, including unknown fields, `usage`, `output` and `incomplete_details`. `-SimpleResponse` concatenates all `output_text` blocks in order without a separator. Refusals produce a warning in full mode and a terminating `PSAOAI.Response.Refused` in text mode. Incomplete results warn; text mode returns available partial text, otherwise `PSAOAI.Response.NoText`. Failed/error-bearing results terminate with `PSAOAI.Response.Failed`; malformed results use `PSAOAI.Response.ProtocolError`. HTTP failures and timeouts use `PSAOAI.Response.HttpError` and `PSAOAI.Response.Timeout` with sanitized diagnostics.
 
-HTTP/timeout failure stops the public request before parsing in both full and text modes. Default `ErrorAction Continue` reports one sanitized error and allows the next caller statement; `-ErrorAction Stop` remains catchable. A 401 means authentication was not accepted, not proof of an invalid key: verify locally that endpoint and key belong to the same Azure resource, the key is current, and API-key local authentication is enabled. Never share keys or raw error bodies. The regression uses fresh PowerShell processes without an enclosing Continue-mode try (which otherwise conceals the cascade). No new Azure or native Windows qualification was performed.
+HTTP/timeout failure stops the public request before parsing in both full and text modes. Default `ErrorAction Continue` reports one sanitized error and allows the next caller statement; `-ErrorAction Stop` remains catchable. A 401 means authentication was not accepted, not proof of an invalid key: verify locally that endpoint and key belong to the same Azure resource, the key is current, and API-key local authentication is enabled. Never share keys or raw error bodies. The regression uses fresh PowerShell processes without an enclosing Continue-mode try (which otherwise conceals the cascade). That repair checkpoint performed no new Azure or native Windows qualification; later user-reported source-install acceptance is recorded below.
 
 Requests explicitly set `store=false`, `stream=false`, and `background=false`; `store=false` is not a guarantee of zero service-side retention. Optional fields are sent only when supplied; timeout defaults to 60 seconds. The new transport does not log payloads, retry POSTs, follow redirects or use background jobs. It currently bypasses system proxies; proxy-dependent environments are not qualified. Tools, multimodal input, conversation state, SSE, Entra ID, reasoning controls and temperature/top_p are outside this MVP.
 
@@ -112,9 +114,9 @@ pwsh -NoLogo -NoProfile -File ./tests/Test-ResponsesApi.ps1 -SelfTest
 pwsh -NoLogo -NoProfile -File ./tests/Test-ResponsesApi.ps1
 ```
 
-Python 3 is optional and used only for loopback HTTP tests, not for the module itself. The runner detects `python3` or `python` and verifies Python 3; if unavailable, it explicitly skips the 23 loopback tests and runs the remaining checks. Use `-SkipLoopback` to skip them deliberately. A run with skips does not qualify real HTTP transport. Pester is not required. Import verification uses a disposable module copy with the real setter and discovery code, fail-fast write/prompt/network guards, a PSGallery stub and a synthetic User-read boundary. Five cases verify absent/enabled/suppressed banners, Process precedence, preserved API configuration and no discovery or writes. This proves the isolated import and legacy exports/URL builders, not that ordinary module import is side-effect-free. Separately, an approved live acceptance exercised the actual dot-sourced cmdlet, real configuration lookup, API-key authentication, HTTPS transport and parser on `gpt-6.1-sol`: budget 512, status `completed`, text `OK`, usage 11 input + 5 output = 16 total tokens, `store=false`. Ordinary module bootstrap was bypassed and is not live-qualified; other models/regions and runtimes remain unqualified. No further Azure calls are authorized. The 0.7.0 source release is ready for Gallery publication; Gallery publication remains pending; CI is unchanged. The installation command above retrieves the published Gallery version, not version 0.7.0. See [the source-tree execution plan](https://github.com/voytas75/PSAOAI/blob/master/docs/ResponsesApiPlan.md) (not included in the runtime package). Test commands above run from the source checkout; tests are not packaged.
+Python 3 is optional and used only for loopback HTTP tests, not for the module itself. The runner detects `python3` or `python` and verifies Python 3; if unavailable, it explicitly skips the 23 loopback tests and runs the remaining checks. Use `-SkipLoopback` to skip them deliberately. A run with skips does not qualify real HTTP transport. Pester is not required. Import verification uses a disposable module copy with the real setter and discovery code, fail-fast write/prompt/network guards, a PSGallery stub and a synthetic User-read boundary. Five cases verify absent/enabled/suppressed banners, Process precedence, preserved API configuration and no discovery or writes. This proves the isolated import and legacy exports/URL builders, not that ordinary module import is side-effect-free. Separately, an approved live acceptance exercised the actual dot-sourced cmdlet, real configuration lookup, API-key authentication, HTTPS transport and parser on `gpt-6.1-sol`: budget 512, status `completed`, text `OK`, usage 11 input + 5 output = 16 total tokens, `store=false`. That historical test bypassed ordinary module bootstrap. Subsequently, the user reported successful native Windows acceptance of the actual installed source with real Azure in both simple and full modes: `completed`, `OK`, 16 total tokens, `store=false`. This does not establish installation or acceptance of a downloaded Gallery package, Windows User/Machine persistence, or other models/regions/runtimes. Publication of [Gallery version 0.7.0](https://www.powershellgallery.com/packages/PSAOAI/0.7.0) was verified live by the user/parent agent; CI is unchanged. No further Azure calls are authorized. Development is parked; reopen only for a reproducible defect or a concrete caller need, with separately approved scope. See [the source-tree execution plan](https://github.com/voytas75/PSAOAI/blob/master/docs/ResponsesApiPlan.md) (not included in the runtime package). Test commands above run from the source checkout; tests are not packaged.
 
-## Environment inventory (local 0.7.0 additive fix)
+## Environment inventory (0.7.0 additive fix)
 
 ```powershell
 Get-PSAOAIEnv                 # separate Process, User and Machine rows
@@ -122,7 +124,7 @@ Get-PSAOAIEnv -Scope Process  # or User / Machine
 pwsh -NoLogo -NoProfile -File ./tests/Test-PSAOAIEnv.ps1
 ```
 
-Returns objects with `Name`, `Value`, `Scope` and compatibility `Info`. Duplicate names across scopes are preserved; this is an inventory, not effective precedence. All PSAOAI API-key values are shown only as `****`, including empty keys, without decoding or assuming encryption. No matching variables produces an informational message, not a data row. User/Machine inventories depend on OS support and may be empty on Unix. Tests use synthetic Process data and a mocked enumeration seam for User/Machine, with no persistent changes or real secret reads. This local fix remains unpublished.
+Returns objects with `Name`, `Value`, `Scope` and compatibility `Info`. Duplicate names across scopes are preserved; this is an inventory, not effective precedence. All PSAOAI API-key values are shown only as `****`, including empty keys, without decoding or assuming encryption. No matching variables produces an informational message, not a data row. User/Machine inventories depend on OS support and may be empty on Unix. Tests use synthetic Process data and a mocked enumeration seam for User/Machine, with no persistent changes or real secret reads. This fix is part of the published 0.7.0 release; the synthetic tests qualify source behavior, not a downloaded Gallery package.
 
 Configuration lookup remains Process → User → Machine (with existing fallback); `Clear-PSAOAIEnv` still clears its fixed User-scope variables only. Neither behavior is changed by the inventory fix.
 

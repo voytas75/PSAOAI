@@ -1,8 +1,16 @@
 # PSAOAI — plan dodania Azure Responses API
 
-Status: S0–S3 zakończone offline GREEN; S4 rzeczywistego cmdletu potwierdzone live przez dot-source. Zwykły bootstrap modułu niekwalifikowany live. Wersja 0.7.0 przygotowana do publikacji w PSGallery; publikacja Gallery należy do użytkownika.
-Baza: lokalny master, commit `50b24fd71696f6d89f65dfe4a50fec2e2d7f4471`; przed zapisem planu working tree czysty.
-Zakres pierwotnego wykonania: S0 → S3 offline. Później wykonano osobno zatwierdzone S4 opisane niżej. Końcowy closeout: tylko walidacja offline i dokumentacja, bez publikacji, zmian CI, instalacji, odczytu sekretów ani nowych wywołań modelu.
+Status aktualny: MVP 0.7.0 opublikowane przez użytkownika; [PowerShell Gallery 0.7.0](https://www.powershellgallery.com/packages/PSAOAI/0.7.0) potwierdzone live przez użytkownika/agenta nadrzędnego. S0–S3 offline GREEN i historyczne S4 przez dot-source zachowują swoje granice. Użytkownik później potwierdził natywną akceptację Windows rzeczywiście zainstalowanego źródła z Azure w trybach simple i full: `completed`, `OK`, 16 tokenów łącznie, `store=false`. Nie jest to akceptacja pobranej paczki Gallery ani trwałych ustawień User/Machine.
+Baza historycznego planu: lokalny master, commit `50b24fd71696f6d89f65dfe4a50fec2e2d7f4471`; przed zapisem planu working tree czysty. Baza obecnego closeout dokumentacji: `5f475de`, working tree czysty przed edycją.
+Zakres obecnego closeout: tylko README, ReleaseNotes i ten plan; bez commit/push/tagów, zmian wersji, manifestu/runtime/source, CI, instalacji, sekretów lub provider calls. Publikacja wykonana wcześniej przez użytkownika, nie przez ten closeout. Historyczne checkpointy poniżej opisują stan w chwili wykonania, nie aktualne zadania.
+
+## Closeout publikacji — ledger
+
+- Potwierdzenie: publiczny link wersji powyżej; dowód dostarczony przez użytkownika/agenta nadrzędnego. Nie pobierano ani nie instalowano paczki Gallery. Polecenie dla użytkownika: `Install-Module -Name PSAOAI -RequiredVersion 0.7.0`.
+- Korekty w kolejności: instrukcja exact-version i granice akceptacji w README; stan wydania w ReleaseNotes; aktualny status i następny trigger w tym planie. Historyczne wyniki lokalne pozostają zachowane.
+- Artefakty: zapieczętowany stage/ZIP/receipt w scratch pozostaje historyczny i niezmieniony. Aktualny README repo po closeout nie jest deklarowany jako bajtowo identyczny z opublikowaną paczką; nie ma nowego pakowania.
+- Akceptacja dokumentacji: PASS — skan aktywnych twierdzeń o publikacji i granic source/paczka; jedyny lokalny link/fragment w trzech plikach poprawny (`#responses-api-070`); dokładny inventory tylko README.md, docs/ReleaseNotes.md, docs/ResponsesApiPlan.md; `git diff --check` exit 0. Link Gallery wskazuje zweryfikowaną przez użytkownika/agenta nadrzędnego wersję 0.7.0; pozostałych zewnętrznych linków nie odpytywano. Nie uruchamiano niezmienionych testów runtime.
+- Następny dozwolony kierunek: parkowanie rozwoju; wznowienie dopiero po odtwarzalnym defekcie lub konkretnej potrzebie callera i osobnej zgodzie. Instalacja/akceptacja pobranej paczki Gallery pozostaje oddzielnym, niewykonanym sprawdzeniem, nie automatycznym zadaniem.
 
 ## Cel i decyzja
 
@@ -10,7 +18,7 @@ Dodać osobny `Invoke-PSAOAIResponse`, zachowując obecne cmdlety i ich kontrakt
 
 Nie przełączać automatycznie Chat Completions na Responses. Nie obiecywać pełnej obsługi wszystkich funkcji Responses po wdrożeniu podstawowego POST.
 
-## Potwierdzony stan
+## Historyczny stan przed implementacją
 
 - `Private/Get-PSAOAIUrl.ps1` buduje endpointy deployment-scoped, bez Responses.
 - `PSAOAI.psd1` ma jawną listę eksportów; nowy cmdlet wymaga dopisania.
@@ -86,7 +94,7 @@ Dodatkowy nowy plik: Private/Invoke-PSAOAIResponseRequest.ps1. Plik istniejący:
 
 Done: GREEN offline, poprawny lokalny request transportu i brak regresji eksportów oraz istniejących URL-i. Nie deklarować pełnej regresji starszych cmdletów bez ich odrębnych testów.
 
-### S3 — dokumentacja i gotowość wydania (DONE offline; niewydane)
+### S3 — dokumentacja i gotowość wydania (historyczny DONE offline przed publikacją)
 
 Pliki: `README.md`, `docs/ReleaseNotes.md`, ten plan; wersja w `PSAOAI.psd1` i `PSAOAI.psm1` podniesiona do 0.7.0 po zatwierdzeniu lokalnego przygotowania wydania.
 
@@ -137,9 +145,9 @@ Alternatywa: rozszerzyć istniejący cmdlet ChatCompletion o tryb Responses. Jes
 
 ## Jeden następny slice
 
-S4 cmdletu oraz końcowy closeout offline zakończone; nie powtarzać akceptacji Azure. Zatwierdzono lokalne przygotowanie release 0.7.0: wersje, metadane, dokumentacja i czysta paczka poza repo. Brak zgody na provider calls, odczyt sekretów, instalacje, commit/push/tagi, CI lub publikację. Bootstrap live, proxy i inne runtime’y/modele nadal poza zakresem.
+Publikacja Gallery 0.7.0 potwierdzona; późniejsza akceptacja Windows dotyczy rzeczywiście zainstalowanego źródła, nie pobranej paczki Gallery. Closeout dokumentacji nie powtarza Azure ani pakowania. Rozwój zaparkowany: następny slice wymaga odtwarzalnego defektu lub konkretnej potrzeby callera oraz osobnej zgody. Proxy, inne modele/regiony/runtime’y i Windows User/Machine persistence nadal niekwalifikowane; commit/push/tagi, CI, instalacje, sekrety i provider calls nie są zatwierdzone.
 
-## Aktualny checkpoint wykonania S1–S3
+## Historyczny checkpoint wykonania S1–S3
 
 - Rzeczywisty historyczny RED: `pwsh -NoLogo -NoProfile -File ./tests/Test-ResponsesApi.ps1` → passed=0, failed=28 (brak implementacji).
 - Aktualny SelfTest: to samo polecenie z `-SelfTest` → passed=2, failed=0, exit 0.
@@ -149,14 +157,14 @@ S4 cmdletu oraz końcowy closeout offline zakończone; nie powtarzać akceptacji
 - Transport używa synchronicznego HttpClient bez proxy, automatycznych poświadczeń, redirectów i retry; nie emituje request ID ani payloadów. Środowiska wymagające proxy pozostają niekwalifikowane.
 - Ograniczenia: bootstrap modułu niekwalifikowany live; inne runtime’y/modele/regiony, proxy i pełna regresja starych cmdletów niekwalifikowane. TLS/Azure rzeczywistego cmdletu potwierdzone w S4 przez dot-source. Brak nowej autoryzacji na provider calls.
 
-## Lokalny additive fix Get-PSAOAIEnv (0.7.0, niewydany)
+## Historyczny lokalny additive fix Get-PSAOAIEnv (przed publikacją 0.7.0)
 
 - Zatwierdzono i wdrożono wyłącznie inventory: opcjonalny ValidateSet Process/User/Machine; domyślnie wszystkie scope jako osobne obiekty Name/Value/Scope/Info, bez precedence i bez deduplikacji nazw.
 - Wszystkie wartości kluczy API maskowane w całości jako `****`, bez dekodowania/założenia szyfrowania. Brak zmiennych: komunikat information stream, zero data rows. Unix może nie mieć inventory User/Machine.
 - Rzeczywisty TDD: `pwsh -NoLogo -NoProfile -File ./tests/Test-PSAOAIEnv.ps1` RED passed=0 failed=9 → GREEN passed=9 failed=0. Syntetyczne Process, mock seam User/Machine; bez odczytów realnych sekretów i trwałych zmian. Pełny Responses runner ponownie 49/0, skipped=0, z izolowanym importem.
 - Przejrzano, nie zmieniono: Get-EnvironmentVariable stosuje Process→User→Machine i fallback Env; Clear-PSAOAIEnv usuwa stałą listę tylko w User. CI/auth/transport/bootstrap bez zmian; brak provider calls, instalacji, commit/push/tag/publikacji. Wersja nadal lokalna 0.7.0.
 
-## Bounded import UX fix (0.7.0, lokalny)
+## Historyczny bounded import UX fix (przed publikacją 0.7.0)
 
 - Przyczyna: import wywoływał Set-EnvironmentVariable z wynikiem sieciowego Get-APIVersion. Pusty wynik uruchamiał Read-Host; wynik niepusty nadpisywał Process/User. Import teraz tylko odczytuje istniejącą wersję, bez discovery, promptu i zapisu. Brak wersji pozostaje brakiem konfiguracji; interaktywny setup starszych poleceń nie został usunięty.
 - Manifest PrivateData.PSData.ReleaseNotes jest jedynym źródłem krótkiej notki bieżącej wersji. Banner/notka wyłączone dla skutecznego PSAOAI_BANNER=0; lookup Process→User→Machine zachowany, wartość 1 włącza notkę. Dokumentacja zachowuje konwencję ustawienia User.
@@ -164,7 +172,7 @@ S4 cmdletu oraz końcowy closeout offline zakończone; nie powtarzać akceptacji
 - Weryfikacja końcowa: Responses 49/0/skipped=0, Env 9/0, SelfTest 2/0; parser PowerShell 42 pliki, Test-ModuleManifest 0.7.0 i FileList 47. Odświeżono allowlist stage/ZIP/inventory/SHA256 w scratch: 47 plików, zgodne bajtowo ze źródłem, bez tests/tools/env/planów. Import niezmodyfikowanej paczki z samą atrapą PSGallery: notka włączona/wyłączona, osiem eksportów, wersja API zachowana. SHA paczki zapisany obok artefaktu, nie duplikowany w planie.
 - Historyczne checkpointy S0/S1 zachowują opis ówczesnych atrap; powyższy checkpoint określa aktualną metodę. PSGallery, TLS, auth, proxy, Clear-PSAOAIEnv, CI i inne polecenia bez zmian. Brak nowych provider calls, sekretów, instalacji i publikacji. Zwykły sieciowy import oraz rzeczywiste User persistence na Windows nadal niekwalifikowane.
 
-## Explicit first-use configuration (0.7.0, lokalny niecommitowany slice)
+## Historyczny explicit first-use configuration (ówczesny lokalny niecommitowany slice 0.7.0)
 
 - Zatwierdzony zakres: nowy eksport Initialize-PSAOAIConfiguration, Responses -Interactive jako opt-in, Process-only bez trwałych zapisów User/Machine. Import pozostaje noninteractive; CI, transport, auth lookup, polityki, instalacje, cloud calls, commit/push/publikacja poza zakresem.
 - Domyślne Responses podaje konkretnie brakujące nazwy endpoint/key i kieruje do initializera. Mandatory Deployment/InputText nadal obsługuje PowerShell. Initializer pyta o brakujące wartości, waliduje endpoint istniejącym URL helperem przed Read-Host -AsSecureString, zapisuje dopiero po walidacji obu wartości i zwraca status bez sekretu. Klucz w Process env jest plaintext niezbędnym transportowi, nie „zaszyfrowaną konfiguracją”.
@@ -172,14 +180,14 @@ S4 cmdletu oraz końcowy closeout offline zakończone; nie powtarzać akceptacji
 - Regresje: Responses 49/0/skipped=0 z realnym loopback, Env 9/0, import pięć przypadków po dziewięć eksportów/cztery URL-e, bez promptów/discovery/zapisów. Native Windows persistence i nowe live acceptance niekwalifikowane.
 - Manifest pozostaje 0.7.0 UTF-16LE BOM; FileList rozszerzony o Public/Initialize-PSAOAIConfiguration.ps1. Artefakty i bieżący receipt/hashes odświeżane w scratch, bez tests/env/planów. Commit/push nadal wymaga odrębnej zgody.
 
-## Narrow transport-error cascade repair (0.7.0, local)
+## Historical narrow transport-error cascade repair (0.7.0, then-local)
 
 - Preflight: clean master `0997b91`; no CI changes, commits, push, installs, secrets or provider calls. Native Windows checkout not synchronized or modified.
 - Diagnosis: transport ThrowTerminatingError terminates its statement, not the enclosing public function under default Continue; null then reaches parser and adds ProtocolError. Global Stop and even an enclosing test try conceal this. Fresh-process Continue probe has no surrounding try; captures redirected records and PowerShell error history when statement termination bypasses pipeline output.
 - RED before production changes: Responses 53 passed / 8 failed / 0 skipped; six Continue cases called parser once, two Stop 401 cases lacked safe guidance. With finalized probe and only boundary reverted: 55/6/0. GREEN: 61/0/0, 22 loopback POSTs, no redirects/retries; 401/400/timeout × Continue/Stop × full/simple. One original sanitized HttpError/Timeout, no output, zero parser calls; null TargetObject/InnerException and no secret/prompt markers.
 - Minimal repair: nested transport -ErrorAction Stop inside try, public ThrowTerminatingError of its sanitized record. Default caller continues next statement; explicit Stop is catchable. 401 advice is conditional diagnosis: matching resource/key, current key, enabled local API-key authentication; no raw body or certain invalid-key assertion.
 - Regression: Env 9/0; Configuration 13/0; isolated Import five cases, nine exports/four legacy URLs. WSL only; no new cloud acceptance or native Windows tests (would require separately approved uncommitted synchronization).
-- Refresh allowlisted scratch stage/ZIP/inventory against current source bytes after documentation changes. Version remains 0.7.0; publication not performed.
+- At that repair checkpoint the allowlisted scratch stage/ZIP/inventory was refreshed against source bytes; version remained 0.7.0 and publication had not yet occurred. This sealed artifact remains historical and is not rebuilt for the later docs-only publication closeout.
 
 ## Źródła kontraktu
 

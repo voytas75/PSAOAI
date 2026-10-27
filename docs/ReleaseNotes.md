@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [0.7.0]
 
+Publication: [PowerShell Gallery 0.7.0](https://www.powershellgallery.com/packages/PSAOAI/0.7.0), published by the user and verified live by the user/parent agent. Exact-version installation: `Install-Module -Name PSAOAI -RequiredVersion 0.7.0`. This documentation closeout does not claim installation or testing of a downloaded Gallery package.
+
 ### Added
 
 - Explicit `Initialize-PSAOAIConfiguration` with validated endpoint and hidden API-key input, Process-only writes and secret-free status; opt-in Responses `-Interactive`. Default mode names missing configuration and directs setup without prompting. Mandatory Deployment/InputText behavior is preserved. Synthetic offline setup regression coverage; no native Windows persistence qualification.
@@ -15,15 +17,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ### Qualification
 
-- Offline tested on PowerShell 7.6.8 / WSL: runner self-test 2/0, full suite 61/0, isolated import with nine exports and four legacy URLs. Final validation made no provider calls or installations; CI remains unchanged. Manifest and runtime version are 0.7.0; this release is unpublished.
-- Separately approved live acceptance of the actual dot-sourced cmdlet verified configuration lookup, API-key authentication, HTTPS transport and parser on `gpt-6.1-sol`: output budget 512, `completed`, text `OK`, tokens 11 input / 5 output / 16 total, `store=false`. Ordinary module bootstrap, other models/regions/runtimes and full regression of older commands remain unqualified. The subsequent bounded import UX fix changes API-version setup and banner presentation only; PSGallery/TLS bootstrap and older transports remain unchanged.
+- Offline tested on PowerShell 7.6.8 / WSL: runner self-test 2/0, full suite 61/0, isolated import with nine exports and four legacy URLs. Final validation made no provider calls or installations; CI remains unchanged. Manifest and runtime version remain 0.7.0. These are historical local qualification results, not Gallery-package acceptance.
+- Separately approved live acceptance of the actual dot-sourced cmdlet verified configuration lookup, API-key authentication, HTTPS transport and parser on `gpt-6.1-sol`: output budget 512, `completed`, text `OK`, tokens 11 input / 5 output / 16 total, `store=false`. That historical dot-source test did not qualify ordinary module bootstrap, other models/regions/runtimes or full regression of older commands. The subsequent bounded import UX fix changes API-version setup and banner presentation only; PSGallery/TLS bootstrap and older transports remain unchanged.
+
+Later user-reported acceptance: native Windows actual installed source exercised real Azure in both simple and full modes successfully (`completed`, `OK`, 16 total tokens, `store=false`). This does not qualify a downloaded Gallery package or Windows User/Machine persistence. Development is parked pending a reproducible defect or concrete caller need; any new work requires separate approval.
 
 ### Fixed
 
-- Prevent the Responses HTTP/timeout error → parser ProtocolError cascade under default ErrorAction Continue. The public boundary stops the nested transport and preserves its sanitized record; Stop remains catchable. Fresh-process loopback 401/400/timeout tests cover Continue/Stop and full/text modes, one error and zero parser calls. 401 guidance checks matching resource/key, current key and enabled local API-key authentication without claiming a certain cause or exposing provider bodies. No new Azure/native Windows acceptance.
+- Prevent the Responses HTTP/timeout error → parser ProtocolError cascade under default ErrorAction Continue. The public boundary stops the nested transport and preserves its sanitized record; Stop remains catchable. Fresh-process loopback 401/400/timeout tests cover Continue/Stop and full/text modes, one error and zero parser calls. 401 guidance checks matching resource/key, current key and enabled local API-key authentication without claiming a certain cause or exposing provider bodies. No new Azure/native Windows acceptance at that repair checkpoint; later source-install acceptance is recorded above.
 
 - Import no longer calls interactive API-version setup or discovers/overwrites a configured version. Legacy command setup remains interactive when intentionally invoked without configuration. A concise latest-version-only manifest note is shown with the banner unless effective `PSAOAI_BANNER` is `0` (Process → User → Machine); `1` enables it. Five isolated import cases verify prompts/writes/discovery absent, configuration preserved, all exports and legacy URLs, and User suppression through a synthetic read seam. PSGallery/TLS bootstrap remains unchanged; ordinary network import and native Windows User persistence are not qualified.
-- Local, unpublished additive `Get-PSAOAIEnv` fix: optional validated Process/User/Machine scope; all three scopes by default with duplicate names preserved as separate Name/Value/Scope/Info objects. API keys are fully masked as `****` without encryption assumptions; empty inventory emits information only. Synthetic scope regression runner: RED 0/9, GREEN 9/0; existing Responses suite 49/0 (no skips). Configuration lookup and Clear behavior remain unchanged.
+- Additive `Get-PSAOAIEnv` fix included in 0.7.0: optional validated Process/User/Machine scope; all three scopes by default with duplicate names preserved as separate Name/Value/Scope/Info objects. API keys are fully masked as `****` without encryption assumptions; empty inventory emits information only. Synthetic scope regression runner: RED 0/9, GREEN 9/0; existing Responses suite 49/0 (no skips). Configuration lookup and Clear behavior remain unchanged.
 - Responses transport rejects a singleton JSON array root rather than accidentally accepting its enumerated object; covered by a real loopback RED/GREEN regression.
 
 ## [0.6.5] - 2026.03.27
