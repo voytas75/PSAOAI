@@ -5,7 +5,7 @@
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/PSAOAI)](https://www.powershellgallery.com/packages/PSAOAI)
 [![PowerShell Gallery Downloads](https://img.shields.io/powershellgallery/dt/PSAOAI)](https://www.powershellgallery.com/packages/PSAOAI)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/b299e2b2499942589ee6fe26c972fbb9)](https://app.codacy.com/gh/voytas75/PSAOAI/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
-[![Module Version 0.6.5](https://img.shields.io/badge/module-0.6.5-green.svg)](https://github.com/voytas75/PSAOAI/blob/master/docs/ReleaseNotes.md)
+[![Module Version 0.7.0 candidate](https://img.shields.io/badge/module-0.7.0_candidate-orange.svg)](https://github.com/voytas75/PSAOAI/blob/master/docs/ReleaseNotes.md)
 
 ![PSAOAI](https://github.com/voytas75/PSAOAI/blob/master/images/PSAOAI128.png?raw=true "PowerShell Azure OpenAI (PSAOAI) Module")
 
@@ -61,6 +61,31 @@ Set the environment values needed by your Azure OpenAI deployment:
 "Explain Azure Logic App IF conditions in simple terms." |
   Invoke-PSAOAIChatCompletion -Deployment "your_deployment" -SimpleResponse -Stream $false
 ```
+
+## Responses API (0.7.0 local release candidate)
+
+`Invoke-PSAOAIResponse` is a separate synchronous text command; it does not change Chat Completions or translate results to `choices[]`. This source-tree addition is not yet a PowerShell Gallery release. Offline qualification was performed on PowerShell 7.6.8 (WSL); Windows PowerShell 5.1 and other runtimes are not qualified for this command.
+
+```powershell
+Invoke-PSAOAIResponse -Endpoint 'https://RESOURCE.openai.azure.com' `
+  -Deployment 'DEPLOYMENT-NAME' -InputText 'Odpowiedz krótko.' `
+  -Instructions 'Use plain text.' -MaxOutputTokens 512 -SimpleResponse
+```
+
+Use the existing `PSAOAI_API_AZURE_OPENAI_KEY` configuration. Endpoint can fall back to `PSAOAI_API_AZURE_OPENAI_ENDPOINT`; an explicit endpoint takes precedence. Deployment is always explicit and maps to JSON `model`. Only HTTPS resource roots or `/openai/v1` bases are accepted; the URL is `/openai/v1/responses` without a dated API version. Missing configuration fails without a prompt or persistent write. Import itself retains the module's existing update check/configuration bootstrap effects.
+
+The default result is the full REST object, including unknown fields, `usage`, `output` and `incomplete_details`. `-SimpleResponse` concatenates all `output_text` blocks in order without a separator. Refusals produce a warning in full mode and a terminating `PSAOAI.Response.Refused` in text mode. Incomplete results warn; text mode returns available partial text, otherwise `PSAOAI.Response.NoText`. Failed/error-bearing results terminate with `PSAOAI.Response.Failed`; malformed results use `PSAOAI.Response.ProtocolError`. HTTP failures and timeouts use `PSAOAI.Response.HttpError` and `PSAOAI.Response.Timeout` with sanitized diagnostics.
+
+Requests explicitly set `store=false`, `stream=false`, and `background=false`; `store=false` is not a guarantee of zero service-side retention. Optional fields are sent only when supplied; timeout defaults to 60 seconds. The new transport does not log payloads, retry POSTs, follow redirects or use background jobs. It currently bypasses system proxies; proxy-dependent environments are not qualified. Tools, multimodal input, conversation state, SSE, Entra ID, reasoning controls and temperature/top_p are outside this MVP.
+
+Offline checks use synthetic data and real loopback HTTP, not Azure:
+
+```powershell
+pwsh -NoLogo -NoProfile -File ./tests/Test-ResponsesApi.ps1 -SelfTest
+pwsh -NoLogo -NoProfile -File ./tests/Test-ResponsesApi.ps1
+```
+
+Python 3 is required for the loopback fixture; Pester is not required. Import verification uses a disposable module copy with a configuration-write stub plus actual exercised PSGallery/REST stubs in a child process. This proves the isolated import and legacy exports/URL builders, not that ordinary module import is side-effect-free. Separately, an approved live acceptance exercised the actual dot-sourced cmdlet, real configuration lookup, API-key authentication, HTTPS transport and parser on `gpt-6.1-sol`: budget 512, status `completed`, text `OK`, usage 11 input + 5 output = 16 total tokens, `store=false`. Ordinary module bootstrap was bypassed and is not live-qualified; other models/regions and runtimes remain unqualified. No further Azure calls are authorized. The 0.7.0 release candidate remains local and unpublished; CI is unchanged. The installation command above retrieves the published Gallery version, not this candidate. See [the source-tree execution plan](https://github.com/voytas75/PSAOAI/blob/master/docs/ResponsesApiPlan.md) (not included in the runtime package). Test commands above run from the source checkout; tests are not packaged.
 
 ## Supported scenarios
 

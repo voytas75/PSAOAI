@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.7.0] - local release candidate (unpublished)
+
+### Added
+
+- Separate `Invoke-PSAOAIResponse` text-only synchronous Azure Responses v1 MVP with explicit non-storing/non-streaming/non-background requests, full REST results and optional concatenated text.
+- Dedicated UTF-8 JSON transport without jobs, retries, redirects or payload logging; sanitized terminating errors and explicit refusal/incomplete handling.
+- Dependency-free offline PowerShell contract runner, real Python loopback HTTP scenarios, and isolated module-import/legacy export and URL checks.
+
+### Qualification
+
+- Offline tested on PowerShell 7.6.8 / WSL: runner self-test 2/0, full suite 49/0, isolated import with eight exports and four legacy URLs. Final validation made no provider calls or installations; CI remains unchanged. Manifest and runtime version are 0.7.0; this local release candidate is unpublished.
+- Separately approved live acceptance of the actual dot-sourced cmdlet verified configuration lookup, API-key authentication, HTTPS transport and parser on `gpt-6.1-sol`: output budget 512, `completed`, text `OK`, tokens 11 input / 5 output / 16 total, `store=false`. Ordinary module bootstrap, other models/regions/runtimes and full regression of older commands remain unqualified. Existing bootstrap and older transports are unchanged.
+
+### Fixed
+
+- Responses transport rejects a singleton JSON array root rather than accidentally accepting its enumerated object; covered by a real loopback RED/GREEN regression.
+
 ## [0.6.5] - 2026.03.27
 
 ### Added
